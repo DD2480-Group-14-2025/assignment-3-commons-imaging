@@ -23,6 +23,28 @@ import org.apache.commons.imaging.ImagingException;
 
 public class MostPopulatedBoxesMedianCut implements MedianCut {
 
+    /**
+     * Requirements to be tested:
+     * (✅-Covered, ❌-Missed, 👍-Appended)
+     * ✅ Ensure the function successfully performs a median cut when given a valid list of ColorGroup objects.
+     * ✅ Verify that the function returns true when a cut is performed and false when no cut is possible.
+     * ✅ Test when the most populated color group is found and successfully split.
+     * 👍 Test when no valid color group is found, leading to an early return of false.
+     * 👍 Test when only single color group is found, leading to an early return of false.
+     * ✅ A single-color image (whiteImage) ensures that no unnecessary cuts are made.
+     * ✅ A two-color image (whiteAndBlackImage) verifies a simple split scenario.
+     * ✅ A multi-color image (rainbowImage) tests how colors are grouped when more than two colors exist.
+     * ❌ Handling of extreme cases (e.g., all pixels being the same, forcing edge case sorting logic).
+     * ❌ Verify sorting behavior by ensuring different ColorComponent values (RED, GREEN, BLUE, ALPHA) are correctly evaluated.
+     * ❌ Test cases where the median index lands at the start or end of the list to ensure proper adjustments.
+     * ❌ Check cases that could cause an IllegalArgumentException or an ImagingException, such as an empty colorGroups list or an invalid ColorComponent
+     * ✅ Simulate multiple consecutive median cuts to ensure stability and correctness over repeated function calls.
+     * ❌ The function iterates over all color components (RED, GREEN, BLUE, ALPHA).
+     * @param colorGroups
+     * @param ignoreAlpha
+     * @return if the next median cut can be performed
+     * @throws ImagingException
+     */
     @Override
     public boolean performNextMedianCut(final List<ColorGroup> colorGroups, final boolean ignoreAlpha) throws ImagingException {
         int maxPoints = 0;
