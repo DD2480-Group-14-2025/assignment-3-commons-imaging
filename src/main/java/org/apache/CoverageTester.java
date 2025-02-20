@@ -16,30 +16,37 @@
  */
 
 package org.apache;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 
 import java.util.Arrays;
 
+public class CoverageTester {
 
-// @Suite
-// @SelectPackages("my.package.tests")  // Change this to match your test package
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HugosTest {
+    // Ensuring 100 capacity, the arraylist can then later be trimmed down.
+    private static int[] branches;
+    private static int totalRuns;
 
-
-    @AfterAll
-    void after() {
-        System.out.println("Total runs: " + CoverageTester.getTotalRuns());
-        System.out.println("Branch coverage tracker: " + Arrays.toString(CoverageTester.getBranches()));
-        System.out.println("Done with everything.");
+    /**
+     * Initialize the branch tracker
+     * @param totBranches total amount of branches in the function to test
+     */
+    public static void initializeBranches(int totBranches) {
+        branches = new int[totBranches];
+        Arrays.fill(branches, 0);
     }
 
-    @Test
-    void someTest() {
-        assertTrue(true);
+    public static void increaseTotalRuns() {
+        totalRuns++;
+    }
+
+    public static void addBranchTaken(int branch) {
+        branches[branch]++;
+    }
+
+    public static int[] getBranches() {
+        return branches;
+    }
+
+    public static int getTotalRuns() {
+        return totalRuns;
     }
 }

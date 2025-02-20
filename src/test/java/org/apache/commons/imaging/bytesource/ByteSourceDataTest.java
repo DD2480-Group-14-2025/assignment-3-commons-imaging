@@ -31,11 +31,14 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import org.apache.CoverageTester;
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 public class ByteSourceDataTest extends AbstractByteSourceTest {
+
 
     private interface ByteSourceFactory {
         ByteSource getByteSource(byte[] src) throws IOException;
@@ -81,6 +84,12 @@ public class ByteSourceDataTest extends AbstractByteSourceTest {
             assertEquals(src.length, Files.size(file));
             return ByteSource.path(file);
         }
+    }
+
+    @BeforeAll
+    static void setup() {
+        System.out.println("Setting up the CoverageTester");
+        CoverageTester.initializeBranches(12);
     }
 
     public static Stream<byte[]> data() {
