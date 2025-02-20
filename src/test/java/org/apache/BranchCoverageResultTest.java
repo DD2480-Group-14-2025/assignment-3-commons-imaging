@@ -28,7 +28,7 @@ import java.util.Arrays;
 // @Suite
 // @SelectPackages("my.package.tests")  // Change this to match your test package
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HugosTest {
+public class BranchCoverageResultTest {
 
 
     @AfterAll
