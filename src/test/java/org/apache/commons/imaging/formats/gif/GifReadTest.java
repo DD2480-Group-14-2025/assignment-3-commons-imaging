@@ -219,21 +219,14 @@ public class GifReadTest extends AbstractGifTest {
      */
     @Test
     public void testValidGifReturnsStringFromGetXmlxmp() throws IOException, ImagingException {
-        // Load the GIF file
         final File file = TestResources.resourceToFile("/images/gif/GIFS/giphy.gif");
 
-        // Use the actual classes
         ByteSource byteSource = ByteSource.file(file);
         XmpImagingParameters<GifImagingParameters> params = new XmpImagingParameters<>();
 
-        // Create an instance of the parser
         final GifImageParser parser = new GifImageParser();
 
-        // Call the method
-        String result = parser.getXmpXml(byteSource, params);
-
-        // Verify that the result is not null
-        assertNotNull(result);
+        assertNotNull(parser.getXmpXml(byteSource, params));
     }
 
     /**
