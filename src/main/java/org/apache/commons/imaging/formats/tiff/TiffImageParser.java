@@ -603,10 +603,12 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.NONE;
             break;
         case TiffConstants.COMPRESSION_PACKBITS:
+            System.out.println("PACKBITS");
             CoverageTester.addBranchTaken(32);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.PACKBITS;
             break;
         case TiffConstants.COMPRESSION_DEFLATE_PKZIP:
+            System.out.println("COMPRESSION_DEFLATE_PKZIP");
             CoverageTester.addBranchTaken(33);
         case TiffConstants.COMPRESSION_DEFLATE_ADOBE:
             CoverageTester.addBranchTaken(34);
