@@ -55,65 +55,74 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
                 CoverageTester.addBranchTaken(5);
                 continue;
             }
+            else {
+                CoverageTester.addBranchTaken(6);
+            }
             colorCounts.sort(new ColorCountComparator(colorComponent));
             final int countHalf = (int) Math.round((double) colorGroup.totalPoints / 2);
             int oldCount = 0;
             int newCount = 0;
             int medianIndex;
             for (medianIndex = 0; medianIndex < colorCounts.size(); medianIndex++) {
-                CoverageTester.addBranchTaken(6);
+                CoverageTester.addBranchTaken(7);
                 final ColorCount colorCount = colorCounts.get(medianIndex);
 
                 newCount += colorCount.count;
 
                 if (newCount >= countHalf) {
-                    CoverageTester.addBranchTaken(7);
+                    CoverageTester.addBranchTaken(8);
                     break;
+                }
+                else{
+                    CoverageTester.addBranchTaken(9);
                 }
                 oldCount = newCount;
             }
             if (medianIndex == colorCounts.size() - 1) {
-                CoverageTester.addBranchTaken(8);
+                CoverageTester.addBranchTaken(10);
                 medianIndex--;
             } else if (medianIndex > 0) {
-                CoverageTester.addBranchTaken(9);
+                CoverageTester.addBranchTaken(11);
                 final int newDiff = Math.abs(newCount - countHalf);
                 final int oldDiff = Math.abs(countHalf - oldCount);
                 if (oldDiff < newDiff) {
-                    CoverageTester.addBranchTaken(10);
+                    CoverageTester.addBranchTaken(12);
                     medianIndex--;
                 }
                 else{
-                    CoverageTester.addBranchTaken(11);
+                    CoverageTester.addBranchTaken(13);
                 }
             }
             else{
-                CoverageTester.addBranchTaken(12);
+                CoverageTester.addBranchTaken(14);
             }
 
             final List<ColorCount> lowerColors = new ArrayList<>(colorCounts.subList(0, medianIndex + 1));
             final List<ColorCount> upperColors = new ArrayList<>(colorCounts.subList(medianIndex + 1, colorCounts.size()));
             if (lowerColors.isEmpty() || upperColors.isEmpty()) {
-                CoverageTester.addBranchTaken(13);
+                CoverageTester.addBranchTaken(15);
                 continue;
+            }
+            else{
+                CoverageTester.addBranchTaken(16);
             }
             final ColorGroup lowerGroup = new ColorGroup(lowerColors, ignoreAlpha);
             final ColorGroup upperGroup = new ColorGroup(upperColors, ignoreAlpha);
             final int diff = Math.abs(lowerGroup.totalPoints - upperGroup.totalPoints);
             final double score = diff / (double) Math.max(lowerGroup.totalPoints, upperGroup.totalPoints);
             if (score < bestScore) {
-                CoverageTester.addBranchTaken(14);
+                CoverageTester.addBranchTaken(17);
                 bestScore = score;
                 bestColorComponent = colorComponent;
                 bestMedianIndex = medianIndex;
             }
             else{
-                CoverageTester.addBranchTaken(15);
+                CoverageTester.addBranchTaken(18);
             }
         }
 
         if (bestColorComponent == null) {
-            CoverageTester.addBranchTaken(16);
+            CoverageTester.addBranchTaken(19);
             return false;
         }
 
@@ -130,22 +139,23 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
         final int limit;
         switch (bestColorComponent) {
             case ALPHA:
-                CoverageTester.addBranchTaken(17);
+                CoverageTester.addBranchTaken(20);
                 limit = medianValue.alpha;
                 break;
             case RED:
-                CoverageTester.addBranchTaken(18);
+                CoverageTester.addBranchTaken(21);
                 limit = medianValue.red;
                 break;
             case GREEN:
-                CoverageTester.addBranchTaken(19);
+                CoverageTester.addBranchTaken(22);
                 limit = medianValue.green;
                 break;
             case BLUE:
-                CoverageTester.addBranchTaken(20);
+                CoverageTester.addBranchTaken(23);
                 limit = medianValue.blue;
                 break;
             default:
+                CoverageTester.addBranchTaken(24);
                 throw new IllegalArgumentException("Bad mode: " + bestColorComponent);
         }
         colorGroup.cut = new ColorGroupCut(lowerGroup, upperGroup, bestColorComponent, limit);

@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="efb64f62-8b60-4e82-b789-b6801da36b94" name="Changes" comment="test: add two unit tests for MostPopulatedBoxesMedianCut::performNextMedianCut, improving the coverage from 59%(22/37) to 64%(24/37), as evaluated by JaCoCo">
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/apache/commons/imaging/formats/gif/GifImageParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/apache/commons/imaging/formats/gif/GifImageParser.java" afterDir="false" />
+    <list default="true" id="efb64f62-8b60-4e82-b789-b6801da36b94" name="Changes" comment="docs: add documented requirements that are tested or untested by the given test suite, or appended in 3.5.2">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/apache/commons/imaging/palette/MostPopulatedBoxesMedianCut.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/apache/commons/imaging/palette/MostPopulatedBoxesMedianCut.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/apache/ZBranchCoverageResultTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/apache/PerformNextMedianCutCoverageResultTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/org/apache/commons/imaging/bytesource/ByteSourceDataTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/org/apache/commons/imaging/bytesource/ByteSourceDataTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +45,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "JUnit.PaletteQuantizationTest.testNoValidColorGroup.executor": "Run",
     "JUnit.PaletteQuantizationTest.testSingleColorGroup.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "feature/14-performNextMedianCut-Coverage-DIY",
@@ -102,8 +101,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.PaletteQuantizationTest.testSingleColorGroup" />
         <item itemvalue="JUnit.PaletteQuantizationTest.testNoValidColorGroup" />
+        <item itemvalue="JUnit.PaletteQuantizationTest.testSingleColorGroup" />
         <item itemvalue="JUnit.PaletteQuantizationTest.testSingleColorGroup" />
         <item itemvalue="JUnit.PaletteQuantizationTest.testNoValidColorGroup" />
         <item itemvalue="JUnit.PaletteQuantizationTest.testSingleColorGroup" />
@@ -132,7 +131,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="test: add two unit tests for MostPopulatedBoxesMedianCut::performNextMedianCut, improving the coverage from 59%(22/37) to 64%(24/37), as evaluated by JaCoCo" />
-    <option name="LAST_COMMIT_MESSAGE" value="test: add two unit tests for MostPopulatedBoxesMedianCut::performNextMedianCut, improving the coverage from 59%(22/37) to 64%(24/37), as evaluated by JaCoCo" />
+    <MESSAGE value="docs: add documented requirements that are tested or untested by the given test suite, or appended in 3.5.2" />
+    <option name="LAST_COMMIT_MESSAGE" value="docs: add documented requirements that are tested or untested by the given test suite, or appended in 3.5.2" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="../../../../Desktop/init_jacoco.exec" NAME="init_jacoco.exec" MODIFIED="1740082310592" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="jacoco" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
