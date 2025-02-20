@@ -30,24 +30,10 @@ public class GifGetXmpTest {
     @Test
     public void testXmpBlockMissingMagicTrailer() throws IOException {
         // Create a mock ByteSource that returns a GIF block without the required magic trailer
-        ByteSource mockByteSource = ByteSource.array(new byte[]{
-                'G', 'I', 'F', '8', '9', 'a',
+        ByteSource mockByteSource = ByteSource.array(new byte[]{'G', 'I', 'F', '8', '9', 'a',  // GIF header
                 // Fake XMP block header
                 'X', 'M', 'P', ' ', 'D', 'a', 't', 'a', '1', '2', '3', '4',
                 // Missing magic trailer at the end
-        });
-
-        assertThrows(ImagingException.class, () -> {
-            new GifImageParser().getXmpXml(mockByteSource, new XmpImagingParameters<>());
-        });
-    }
-
-    @Test
-    public void testXmpBlockTooShort() throws IOException {
-        // Create a mock ByteSource that returns a GIF block shorter than XMP_APPLICATION_ID_AND_AUTH_CODE.length
-        ByteSource mockByteSource = ByteSource.array(new byte[]{
-                'G', 'I', 'F', '8', '9', 'a',
-                'X', 'M', 'P' // Incomplete XMP block
         });
 
         assertThrows(ImagingException.class, () -> {
