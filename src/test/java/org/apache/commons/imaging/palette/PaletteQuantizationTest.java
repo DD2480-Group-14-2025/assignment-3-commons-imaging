@@ -17,14 +17,21 @@
 package org.apache.commons.imaging.palette;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.imaging.AbstractImagingTest;
 import org.apache.commons.imaging.ImagingException;
 import org.junit.jupiter.api.Test;
 
 public class PaletteQuantizationTest extends AbstractImagingTest {
+    final private List<ColorGroup> colorGroups = new ArrayList<>();
+    final private boolean ignoreAlpha = false;
+
 
     private void checkPaletteDetails(final BufferedImage image, final int limit, final int expectedSize) throws ImagingException {
         final PaletteFactory paletteFactory = new PaletteFactory();
@@ -119,5 +126,35 @@ public class PaletteQuantizationTest extends AbstractImagingTest {
         }
         checkPaletteDetails(rainbowImage, 10, 3);
         checkPaletteDetails(rainbowImage, 2, 2);
+    }
+
+    @Test
+    public void testSingleColorGroup() throws ImagingException {
+        // Create a ColorCount object with an arbitrary ARGB value (e.g., 0x01010101 for RGBA)
+        ColorCount singleColor = new ColorCount(0x01010101);
+        singleColor.count = 10;  // set the count for this color
+
+        // Create a ColorGroup with this single ColorCount
+        ColorGroup singleGroup = new ColorGroup(Arrays.asList(singleColor), ignoreAlpha);
+        colorGroups.add(singleGroup);
+
+        MostPopulatedBoxesMedianCut medianCut = new MostPopulatedBoxesMedianCut();
+        // Since there is only one color group and it cannot be split, the result should be false
+        assertFalse(medianCut.performNextMedianCut(colorGroups, ignoreAlpha));
+    }
+
+    @Test
+    public void testNoValidColorGroup() throws ImagingException {
+        // Create a ColorCount object with an arbitrary ARGB value but a count of 0
+        ColorCount invalidColor = new ColorCount(0x01010101);
+        invalidColor.count = 0;  // no points to consider for median cut
+
+        // Create a ColorGroup with this invalid ColorCount
+        ColorGroup invalidGroup = new ColorGroup(Arrays.asList(invalidColor), ignoreAlpha);
+        colorGroups.add(invalidGroup);
+
+        MostPopulatedBoxesMedianCut medianCut = new MostPopulatedBoxesMedianCut();
+        // Since the group has no points (count is 0), it is invalid and cannot be used for a median cut
+        assertFalse(medianCut.performNextMedianCut(colorGroups, ignoreAlpha));
     }
 }
