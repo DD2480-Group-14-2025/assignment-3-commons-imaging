@@ -235,4 +235,16 @@ public class GifReadTest extends AbstractGifTest {
         // Verify that the result is not null
         assertNotNull(result);
     }
+
+    @Test
+    public void testGifWithDoubleXMPBlocksThrowsError() throws IOException, ImagingException {
+        final File file = TestResources.resourceToFile(
+                "/images/gif/GIFS/giphy_cursed.gif");
+        final GifImageParser parser = new GifImageParser();
+        ByteSource byteSource = ByteSource.file(file);
+        XmpImagingParameters<GifImagingParameters> params = new XmpImagingParameters<>();
+
+        assertThrows(ImagingException.class,
+                () -> parser.getXmpXml(byteSource, params));
+    }
 }
