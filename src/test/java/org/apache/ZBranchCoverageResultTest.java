@@ -30,6 +30,7 @@ public class ZBranchCoverageResultTest {
 
     @AfterAll
     static void after() {
+        System.out.println("------------------------------------------------");
         System.out.println("Total runs: " + CoverageTester.getTotalRuns());
         System.out.println("Branch coverage tracker: " + Arrays.toString(CoverageTester.getBranches()));
         System.out.println("Done with everything.");
