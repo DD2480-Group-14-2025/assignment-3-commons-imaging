@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.CoverageTester;
 import org.apache.commons.imaging.AbstractImageParser;
 import org.apache.commons.imaging.FormatCompliance;
 import org.apache.commons.imaging.ImageFormat;
@@ -85,24 +84,24 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
     // Made internal for testability.
     static DisposalMethod createDisposalMethodFromIntValue(final int value) throws ImagingException {
         switch (value) {
-        case 0:
-            return DisposalMethod.UNSPECIFIED;
-        case 1:
-            return DisposalMethod.DO_NOT_DISPOSE;
-        case 2:
-            return DisposalMethod.RESTORE_TO_BACKGROUND;
-        case 3:
-            return DisposalMethod.RESTORE_TO_PREVIOUS;
-        case 4:
-            return DisposalMethod.TO_BE_DEFINED_1;
-        case 5:
-            return DisposalMethod.TO_BE_DEFINED_2;
-        case 6:
-            return DisposalMethod.TO_BE_DEFINED_3;
-        case 7:
-            return DisposalMethod.TO_BE_DEFINED_4;
-        default:
-            throw new ImagingException("GIF: Invalid parsing of disposal method");
+            case 0:
+                return DisposalMethod.UNSPECIFIED;
+            case 1:
+                return DisposalMethod.DO_NOT_DISPOSE;
+            case 2:
+                return DisposalMethod.RESTORE_TO_BACKGROUND;
+            case 3:
+                return DisposalMethod.RESTORE_TO_PREVIOUS;
+            case 4:
+                return DisposalMethod.TO_BE_DEFINED_1;
+            case 5:
+                return DisposalMethod.TO_BE_DEFINED_2;
+            case 6:
+                return DisposalMethod.TO_BE_DEFINED_3;
+            case 7:
+                return DisposalMethod.TO_BE_DEFINED_4;
+            default:
+                throw new ImagingException("GIF: Invalid parsing of disposal method");
         }
     }
 
@@ -489,24 +488,18 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
      */
     @Override
     public String getXmpXml(final ByteSource byteSource, final XmpImagingParameters<GifImagingParameters> params) throws ImagingException, IOException {
-        CoverageTester.increaseTotalRuns();
         try (InputStream is = byteSource.getInputStream()) {
             final GifHeaderInfo ghi = readHeader(is, null);
 
             if (ghi.globalColorTableFlag) {
-                CoverageTester.addBranchTaken(0);
                 readColorTable(is, ghi.sizeOfGlobalColorTable);
-            } else {
-                CoverageTester.addBranchTaken(1);
             }
 
             final List<GifBlock> blocks = readBlocks(ghi, is, true, null);
 
             final List<String> result = new ArrayList<>();
             for (final GifBlock block : blocks) {
-                CoverageTester.addBranchTaken(2);
                 if (block.blockCode != XMP_COMPLETE_CODE) {
-                    CoverageTester.addBranchTaken(3);
                     continue;
                 }
 
@@ -514,27 +507,22 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
 
                 final byte[] blockBytes = genericBlock.appendSubBlocks(true);
                 if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length) {
-                    CoverageTester.addBranchTaken(4);
                     continue;
                 }
 
                 if (!BinaryFunctions.compareBytes(blockBytes, 0, XMP_APPLICATION_ID_AND_AUTH_CODE, 0, XMP_APPLICATION_ID_AND_AUTH_CODE.length)) {
-                    CoverageTester.addBranchTaken(5);
                     continue;
                 }
 
                 final byte[] gifMagicTrailer = new byte[256];
                 for (int magic = 0; magic <= 0xff; magic++) {
-                    CoverageTester.addBranchTaken(6);
                     gifMagicTrailer[magic] = (byte) (0xff - magic);
                 }
 
                 if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length + gifMagicTrailer.length) {
-                    CoverageTester.addBranchTaken(7);
                     continue;
                 }
                 if (!BinaryFunctions.compareBytes(blockBytes, blockBytes.length - gifMagicTrailer.length, gifMagicTrailer, 0, gifMagicTrailer.length)) {
-                    CoverageTester.addBranchTaken(8);
                     throw new ImagingException("XMP block in GIF missing magic trailer.");
                 }
 
@@ -545,14 +533,11 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
             }
 
             if (result.isEmpty()) {
-                CoverageTester.addBranchTaken(9);
                 return null;
             }
             if (result.size() > 1) {
-                CoverageTester.addBranchTaken(10);
                 throw new ImagingException("More than one XMP Block in GIF.");
             }
-            CoverageTester.addBranchTaken(11);
             return result.get(0);
         }
     }
@@ -565,72 +550,72 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
             final int code = is.read();
 
             switch (code) {
-            case -1:
-                throw new ImagingException("GIF: unexpected end of data");
+                case -1:
+                    throw new ImagingException("GIF: unexpected end of data");
 
-            case IMAGE_SEPARATOR:
-                final ImageDescriptor id = readImageDescriptor(ghi, code, is, stopBeforeImageData, formatCompliance);
-                result.add(id);
-                // if (stopBeforeImageData)
-                // return result;
+                case IMAGE_SEPARATOR:
+                    final ImageDescriptor id = readImageDescriptor(ghi, code, is, stopBeforeImageData, formatCompliance);
+                    result.add(id);
+                    // if (stopBeforeImageData)
+                    // return result;
 
+                    break;
+
+                case EXTENSION_CODE: {
+                    final int extensionCode = is.read();
+                    final int completeCode = (0xff & code) << 8 | 0xff & extensionCode;
+
+                    switch (extensionCode) {
+                        case 0xf9:
+                            final GraphicControlExtension gce = readGraphicControlExtension(completeCode, is);
+                            result.add(gce);
+                            break;
+
+                        case COMMENT_EXTENSION:
+                        case PLAIN_TEXT_EXTENSION: {
+                            final GenericGifBlock block = readGenericGifBlock(is, completeCode);
+                            result.add(block);
+                            break;
+                        }
+
+                        case APPLICATION_EXTENSION_LABEL: {
+                            // 255 (hex 0xFF) Application
+                            // Extension Label
+                            final byte[] label = readSubBlock(is);
+
+                            if (formatCompliance != null) {
+                                formatCompliance.addComment("Unknown Application Extension (" + new String(label, StandardCharsets.US_ASCII) + ")", completeCode);
+                            }
+
+                            if (label.length > 0) {
+                                final GenericGifBlock block = readGenericGifBlock(is, completeCode, label);
+                                result.add(block);
+                            }
+                            break;
+                        }
+
+                        default: {
+
+                            if (formatCompliance != null) {
+                                formatCompliance.addComment("Unknown block", completeCode);
+                            }
+
+                            final GenericGifBlock block = readGenericGifBlock(is, completeCode);
+                            result.add(block);
+                            break;
+                        }
+                    }
+                }
                 break;
 
-            case EXTENSION_CODE: {
-                final int extensionCode = is.read();
-                final int completeCode = (0xff & code) << 8 | 0xff & extensionCode;
+                case TERMINATOR_BYTE:
+                    return result;
 
-                switch (extensionCode) {
-                case 0xf9:
-                    final GraphicControlExtension gce = readGraphicControlExtension(completeCode, is);
-                    result.add(gce);
+                case 0x00: // bad byte, but keep going and see what happens
                     break;
 
-                case COMMENT_EXTENSION:
-                case PLAIN_TEXT_EXTENSION: {
-                    final GenericGifBlock block = readGenericGifBlock(is, completeCode);
-                    result.add(block);
-                    break;
-                }
-
-                case APPLICATION_EXTENSION_LABEL: {
-                    // 255 (hex 0xFF) Application
-                    // Extension Label
-                    final byte[] label = readSubBlock(is);
-
-                    if (formatCompliance != null) {
-                        formatCompliance.addComment("Unknown Application Extension (" + new String(label, StandardCharsets.US_ASCII) + ")", completeCode);
-                    }
-
-                    if (label.length > 0) {
-                        final GenericGifBlock block = readGenericGifBlock(is, completeCode, label);
-                        result.add(block);
-                    }
-                    break;
-                }
-
-                default: {
-
-                    if (formatCompliance != null) {
-                        formatCompliance.addComment("Unknown block", completeCode);
-                    }
-
-                    final GenericGifBlock block = readGenericGifBlock(is, completeCode);
-                    result.add(block);
-                    break;
-                }
-                }
-            }
-                break;
-
-            case TERMINATOR_BYTE:
-                return result;
-
-            case 0x00: // bad byte, but keep going and see what happens
-                break;
-
-            default:
-                throw new ImagingException("GIF: unknown code: " + code);
+                default:
+                    throw new ImagingException("GIF: unknown code: " + code);
             }
         }
     }
@@ -760,7 +745,7 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
     }
 
     private ImageDescriptor readImageDescriptor(final GifHeaderInfo ghi, final int blockCode, final InputStream is, final boolean stopBeforeImageData,
-            final FormatCompliance formatCompliance) throws ImagingException, IOException {
+                                                final FormatCompliance formatCompliance) throws ImagingException, IOException {
         final int imageLeftPosition = BinaryFunctions.read2Bytes("Image Left Position", is, "Not a Valid GIF File", getByteOrder());
         final int imageTopPosition = BinaryFunctions.read2Bytes("Image Top Position", is, "Not a Valid GIF File", getByteOrder());
         final int imageWidth = BinaryFunctions.read2Bytes("Image Width", is, "Not a Valid GIF File", getByteOrder());

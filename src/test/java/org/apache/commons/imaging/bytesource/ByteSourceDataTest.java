@@ -89,7 +89,7 @@ public class ByteSourceDataTest extends AbstractByteSourceTest {
     @BeforeAll
     static void setup() {
         System.out.println("Setting up the CoverageTester");
-        CoverageTester.initializeBranches(12);
+        CoverageTester.initializeBranches(21);
     }
 
     public static Stream<byte[]> data() {

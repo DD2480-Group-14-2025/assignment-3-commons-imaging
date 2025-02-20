@@ -1,0 +1,216 @@
+Index: src/test/java/org/apache/commons/imaging/palette/PaletteQuantizationTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>/*\n * Licensed to the Apache Software Foundation (ASF) under one or more\n * contributor license agreements.  See the NOTICE file distributed with\n * this work for additional information regarding copyright ownership.\n * The ASF licenses this file to You under the Apache License, Version 2.0\n * (the \"License\"); you may not use this file except in compliance with\n * the License.  You may obtain a copy of the License at\n *\n *      http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\npackage org.apache.commons.imaging.palette;\n\nimport static org.junit.jupiter.api.Assertions.assertEquals;\n\nimport java.awt.image.BufferedImage;\n\nimport org.apache.commons.imaging.AbstractImagingTest;\nimport org.apache.commons.imaging.ImagingException;\nimport org.junit.jupiter.api.Test;\n\npublic class PaletteQuantizationTest extends AbstractImagingTest {\n\n    private void checkPaletteDetails(final BufferedImage image, final int limit, final int expectedSize) throws ImagingException {\n        final PaletteFactory paletteFactory = new PaletteFactory();\n        Palette palette;\n\n        palette = paletteFactory.makeExactRgbPaletteSimple(image, limit);\n        // too small palettes are null\n        boolean exact = false;\n        if (palette != null) {\n            assertEquals(expectedSize, palette.length());\n            // checkUniqueColors(image, palette);\n            exact = true;\n        }\n        if (exact) {\n            // checkDithering(image, palette);\n        }\n\n        palette = paletteFactory.makeQuantizedRgbaPalette(image, false, limit);\n        assertEquals(expectedSize, palette.length());\n        checkUniqueColors(image, palette);\n        if (exact) {\n            checkPixelsAreIdentical(image, palette);\n        }\n\n        palette = paletteFactory.makeQuantizedRgbPalette(image, limit);\n        assertEquals(expectedSize, palette.length());\n        // checkUniqueColors(image, palette);\n        if (exact) {\n            // checkDithering(image, palette);\n        }\n\n        final MedianCutQuantizer medianCutQuantizer = new MedianCutQuantizer(true);\n        palette = medianCutQuantizer.process(image, limit, new MostPopulatedBoxesMedianCut());\n        assertEquals(expectedSize, palette.length());\n        checkUniqueColors(image, palette);\n        if (exact) {\n            checkPixelsAreIdentical(image, palette);\n        }\n    }\n\n    private void checkPixelsAreIdentical(final BufferedImage src, final Palette palette) throws ImagingException {\n        final BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);\n        dst.getGraphics().drawImage(src, 0, 0, src.getWidth(), src.getHeight(), null);\n        Dithering.applyFloydSteinbergDithering(dst, palette);\n        for (int y = 0; y < src.getHeight(); y++) {\n            for (int x = 0; x < src.getWidth(); x++) {\n                assertEquals(src.getRGB(x, y), dst.getRGB(x, y));\n            }\n        }\n    }\n\n    private void checkUniqueColors(final BufferedImage src, final Palette palette) throws ImagingException {\n        final BufferedImage dst = new BufferedImage(src.getWidth(), src.getHeight(), BufferedImage.TYPE_INT_RGB);\n        dst.getGraphics().drawImage(src, 0, 0, src.getWidth(), src.getHeight(), null);\n        Dithering.applyFloydSteinbergDithering(dst, palette);\n        final Palette ditheredPalette = new PaletteFactory().makeExactRgbPaletteSimple(dst, palette.length() * 2);\n        assertEquals(palette.length(), ditheredPalette.length());\n    }\n\n    @Test\n    public void testPaletteQuantization() throws ImagingException {\n        final BufferedImage whiteImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);\n        for (int y = 0; y < whiteImage.getHeight(); y++) {\n            for (int x = 0; x < whiteImage.getWidth(); x++) {\n                whiteImage.setRGB(x, y, 0xFFFFFF);\n            }\n        }\n        checkPaletteDetails(whiteImage, 10, 1);\n\n        final BufferedImage whiteAndBlackImage = new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);\n        for (int y = 0; y < whiteImage.getHeight(); y++) {\n            for (int x = 0; x < 5; x++) {\n                whiteAndBlackImage.setRGB(x, y, 0xFFFFFF);\n            }\n            for (int x = 5; x < 10; x++) {\n                whiteAndBlackImage.setRGB(x, y, 0x000000);\n            }\n        }\n        checkPaletteDetails(whiteAndBlackImage, 10, 2);\n\n        final BufferedImage rainbowImage = new BufferedImage(9, 10, BufferedImage.TYPE_INT_RGB);\n        for (int y = 0; y < whiteImage.getHeight(); y++) {\n            for (int x = 0; x < 3; x++) {\n                rainbowImage.setRGB(x, y, 0xFF0000);\n            }\n            for (int x = 3; x < 6; x++) {\n                rainbowImage.setRGB(x, y, 0x00FF00);\n            }\n            for (int x = 6; x < 9; x++) {\n                rainbowImage.setRGB(x, y, 0x0000FF);\n            }\n        }\n        checkPaletteDetails(rainbowImage, 10, 3);\n        checkPaletteDetails(rainbowImage, 2, 2);\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/org/apache/commons/imaging/palette/PaletteQuantizationTest.java b/src/test/java/org/apache/commons/imaging/palette/PaletteQuantizationTest.java
+--- a/src/test/java/org/apache/commons/imaging/palette/PaletteQuantizationTest.java	(revision 0efece9d45f04d7d73ef59d899de9076edb39d16)
++++ b/src/test/java/org/apache/commons/imaging/palette/PaletteQuantizationTest.java	(date 1740084816149)
+@@ -17,14 +17,21 @@
+ package org.apache.commons.imaging.palette;
+ 
+ import static org.junit.jupiter.api.Assertions.assertEquals;
++import static org.junit.jupiter.api.Assertions.assertFalse;
+ 
+ import java.awt.image.BufferedImage;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.List;
+ 
+ import org.apache.commons.imaging.AbstractImagingTest;
+ import org.apache.commons.imaging.ImagingException;
+ import org.junit.jupiter.api.Test;
+ 
+ public class PaletteQuantizationTest extends AbstractImagingTest {
++    final private List<ColorGroup> colorGroups = new ArrayList<>();
++    final private boolean ignoreAlpha = false;
++
+ 
+     private void checkPaletteDetails(final BufferedImage image, final int limit, final int expectedSize) throws ImagingException {
+         final PaletteFactory paletteFactory = new PaletteFactory();
+@@ -120,4 +127,34 @@
+         checkPaletteDetails(rainbowImage, 10, 3);
+         checkPaletteDetails(rainbowImage, 2, 2);
+     }
++
++    @Test
++    public void testSingleColorGroup() throws ImagingException {
++        // Create a ColorCount object with an arbitrary ARGB value (e.g., 0x01010101 for RGBA)
++        ColorCount singleColor = new ColorCount(0x01010101);
++        singleColor.count = 10;  // set the count for this color
++
++        // Create a ColorGroup with this single ColorCount
++        ColorGroup singleGroup = new ColorGroup(Arrays.asList(singleColor), ignoreAlpha);
++        colorGroups.add(singleGroup);
++
++        MostPopulatedBoxesMedianCut medianCut = new MostPopulatedBoxesMedianCut();
++        // Since there is only one color group and it cannot be split, the result should be false
++        assertFalse(medianCut.performNextMedianCut(colorGroups, ignoreAlpha));
++    }
++
++    @Test
++    public void testNoValidColorGroup() throws ImagingException {
++        // Create a ColorCount object with an arbitrary ARGB value but a count of 0
++        ColorCount invalidColor = new ColorCount(0x01010101);
++        invalidColor.count = 0;  // no points to consider for median cut
++
++        // Create a ColorGroup with this invalid ColorCount
++        ColorGroup invalidGroup = new ColorGroup(Arrays.asList(invalidColor), ignoreAlpha);
++        colorGroups.add(invalidGroup);
++
++        MostPopulatedBoxesMedianCut medianCut = new MostPopulatedBoxesMedianCut();
++        // Since the group has no points (count is 0), it is invalid and cannot be used for a median cut
++        assertFalse(medianCut.performNextMedianCut(colorGroups, ignoreAlpha));
++    }
+ }
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!--\n Licensed to the Apache Software Foundation (ASF) under one or more\n contributor license agreements.  See the NOTICE file distributed with\n this work for additional information regarding copyright ownership.\n The ASF licenses this file to You under the Apache License, Version 2.0\n (the \"License\"); you may not use this file except in compliance with\n the License.  You may obtain a copy of the License at\n\n      http://www.apache.org/licenses/LICENSE-2.0\n\n Unless required by applicable law or agreed to in writing, software\n distributed under the License is distributed on an \"AS IS\" BASIS,\n WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n See the License for the specific language governing permissions and\n limitations under the License.\n-->\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd\">\n  <modelVersion>4.0.0</modelVersion>\n  <parent>\n    <groupId>org.apache.commons</groupId>\n    <artifactId>commons-parent</artifactId>\n    <version>79</version>\n  </parent>\n  <artifactId>commons-imaging</artifactId>\n  <name>Apache Commons Imaging</name>\n  <version>1.0.0-alpha6-SNAPSHOT</version>\n  <!--\n    Keep the description on a single line. Otherwise Maven might generate\n    a corrupted MANIFEST.MF (see https://issues.apache.org/jira/browse/MJAR-4)\n   -->\n  <description>Apache Commons Imaging (previously Sanselan) is a pure-Java image library.</description>\n  <url>https://commons.apache.org/proper/commons-imaging/</url>\n  <properties>\n    <!-- ****************************************** -->\n    <!-- WHILE IN ALPHA MODE ONLY, REMOVE FOR 1.0.0 -->\n    <!-- ****************************************** -->\n    <commons.japicmp.breakBuildOnBinaryIncompatibleModifications>false</commons.japicmp.breakBuildOnBinaryIncompatibleModifications>\n    <!-- *********************************************************************************************************************** -->\n    <argLine>-Xmx512m</argLine>\n    <maven.compiler.source>1.8</maven.compiler.source>\n    <maven.compiler.target>1.8</maven.compiler.target>\n    <commons.componentid>imaging</commons.componentid>\n    <commons.module.name>org.apache.commons.imaging</commons.module.name>\n    <commons.jira.id>IMAGING</commons.jira.id>\n    <commons.jira.pid>12313421</commons.jira.pid>\n    <commons.osgi.export>org.apache.commons.imaging.*;version=${project.version};-noimport:=true</commons.osgi.export>\n    <commons.site.path>imaging</commons.site.path>\n    <!-- TODO: remove when we upgrade it to commons-parent 53 due to https://issues.apache.org/jira/browse/MNG-7316 -->\n    <commons.release-plugin.version>1.8.0</commons.release-plugin.version>\n    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>\n    <commons.conf.dir>src/conf</commons.conf.dir>\n    <!-- Commons Release Plugin -->\n    <commons.release.version>1.0.0-alpha6</commons.release.version>\n    <commons.release.next>1.0.0-alpha7</commons.release.next>\n    <commons.bc.version>1.0.0-alpha5</commons.bc.version>\n    <commons.rc.version>RC1</commons.rc.version>\n    <commons.release.isDistModule>true</commons.release.isDistModule>\n    <commons.distSvnStagingUrl>scm:svn:https://dist.apache.org/repos/dist/dev/commons/imaging</commons.distSvnStagingUrl>\n    <!-- project.build.outputTimestamp is managed by Maven plugins, see https://maven.apache.org/guides/mini/guide-reproducible-builds.html -->\n    <project.build.outputTimestamp>2024-04-18T14:55:29Z</project.build.outputTimestamp>\n    <!-- JaCoCo: Don't make code coverage worse than: -->\n    <commons.jacoco.haltOnFailure>true</commons.jacoco.haltOnFailure>\n    <commons.jacoco.classRatio>0.96</commons.jacoco.classRatio>\n    <commons.jacoco.instructionRatio>0.77</commons.jacoco.instructionRatio>\n    <commons.jacoco.methodRatio>0.80</commons.jacoco.methodRatio>\n    <commons.jacoco.branchRatio>0.64</commons.jacoco.branchRatio>\n    <commons.jacoco.lineRatio>0.77</commons.jacoco.lineRatio>\n    <commons.jacoco.complexityRatio>0.60</commons.jacoco.complexityRatio>\n  </properties>\n  <scm>\n    <connection>scm:git:http://gitbox.apache.org/repos/asf/commons-imaging.git</connection>\n    <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/commons-imaging.git</developerConnection>\n    <url>https://gitbox.apache.org/repos/asf?p=commons-imaging.git</url>\n    <tag>HEAD</tag>\n  </scm>\n  <distributionManagement>\n    <site>\n      <id>apache.website</id>\n      <name>Apache Commons Site</name>\n      <url>scm:svn:https://svn.apache.org/repos/infra/websites/production/commons/content/proper/commons-imaging/</url>\n    </site>\n  </distributionManagement>\n  <issueManagement>\n    <system>jira</system>\n    <url>https://issues.apache.org/jira/browse/IMAGING</url>\n  </issueManagement>\n  <inceptionYear>2007</inceptionYear>\n  <build>\n    <defaultGoal>clean verify apache-rat:check checkstyle:check spotbugs:check javadoc:javadoc</defaultGoal>\n    <plugins>\n      <plugin>\n        <groupId>org.openclover</groupId>\n        <artifactId>clover-maven-plugin</artifactId>\n        <version>4.5.2</version>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-assembly-plugin</artifactId>\n        <configuration>\n          <descriptors>\n            <descriptor>src/assembly/bin.xml</descriptor>\n            <descriptor>src/assembly/src.xml</descriptor>\n          </descriptors>\n          <tarLongFileMode>gnu</tarLongFileMode>\n        </configuration>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-surefire-plugin</artifactId>\n      </plugin>\n      <plugin>\n        <groupId>org.codehaus.mojo</groupId>\n        <artifactId>animal-sniffer-maven-plugin</artifactId>\n        <version>1.24</version>\n        <configuration>\n          <signature>\n            <groupId>org.codehaus.mojo.signature</groupId>\n            <artifactId>java18</artifactId>\n            <version>1.0</version>\n          </signature>\n        </configuration>\n        <executions>\n          <execution>\n            <id>check-java-api</id>\n            <phase>test</phase>\n            <goals>\n              <goal>check</goal>\n            </goals>\n          </execution>\n        </executions>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-jar-plugin</artifactId>\n        <executions>\n          <execution>\n            <goals>\n              <goal>test-jar</goal>\n            </goals>\n          </execution>\n        </executions>\n        <configuration>\n          <archive combine.children=\"append\">\n            <manifestEntries>\n              <Automatic-Module-Name>${commons.module.name}</Automatic-Module-Name>\n            </manifestEntries>\n          </archive>\n        </configuration>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-checkstyle-plugin</artifactId>\n      </plugin>\n      <plugin>\n        <groupId>com.github.spotbugs</groupId>\n        <artifactId>spotbugs-maven-plugin</artifactId>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-pmd-plugin</artifactId>\n      </plugin>\n    </plugins>\n    <pluginManagement>\n      <plugins>\n        <plugin>\n          <groupId>org.apache.maven.plugins</groupId>\n          <artifactId>maven-checkstyle-plugin</artifactId>\n          <configuration>\n            <configLocation>${basedir}/src/conf/checkstyle.xml</configLocation>\n            <!-- <suppressionsLocation>${basedir}/src/conf/checkstyle-suppressions.xml</suppressionsLocation> -->\n            <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>\n            <includeTestSourceDirectory>true</includeTestSourceDirectory>\n            <enableRulesSummary>false</enableRulesSummary>\n           <excludes>target/**</excludes>\n          </configuration>\n        </plugin>\n        <plugin>\n          <groupId>com.github.spotbugs</groupId>\n          <artifactId>spotbugs-maven-plugin</artifactId>\n          <configuration>\n            <excludeFilterFile>${commons.conf.dir}/spotbugs-exclude-filter.xml</excludeFilterFile>\n          </configuration>\n        </plugin>\n        <plugin>\n          <groupId>org.apache.rat</groupId>\n          <artifactId>apache-rat-plugin</artifactId>\n          <configuration>\n            <excludes>\n              <exclude>src/test/resources/images/**/*</exclude>\n              <exclude>src/test/resources/IMAGING-*/*</exclude>\n              <exclude>src/test/**/*.xpm</exclude>\n              <exclude>src/test/**/*.pam</exclude>\n              <exclude>src/test/**/*.pbm</exclude>\n              <exclude>src/test/**/*.pgm</exclude>\n              <exclude>src/test/**/*.ppm</exclude>\n              <exclude>src/test/**/*.xbm</exclude>\n              <exclude>src/test/**/*.bmp</exclude>\n              <exclude>src/test/**/*.tga</exclude>\n              <exclude>src/test/**/*.hdr</exclude>\n              <exclude>src/main/resources/org/apache/commons/imaging/formats/xpm/rgb.txt</exclude>\n              <exclude>.asf.yaml</exclude>\n            </excludes>\n          </configuration>\n        </plugin>\n        <plugin>\n          <groupId>org.apache.maven.plugins</groupId>\n          <artifactId>maven-pmd-plugin</artifactId>\n          <configuration>\n            <targetJdk>${maven.compiler.target}</targetJdk>\n            <rulesets>\n              <ruleset>${commons.conf.dir}/pmd-ruleset.xml</ruleset>\n            </rulesets>\n          </configuration>\n        </plugin>\n      </plugins>\n    </pluginManagement>\n  </build>\n  <dependencies>\n    <dependency>\n      <groupId>org.junit.jupiter</groupId>\n      <artifactId>junit-jupiter</artifactId>\n      <scope>test</scope>\n    </dependency>\n    <dependency>\n      <groupId>org.junit.jupiter</groupId>\n      <artifactId>junit-jupiter-params</artifactId>\n      <scope>test</scope>\n    </dependency>\n    <dependency>\n      <groupId>commons-io</groupId>\n      <artifactId>commons-io</artifactId>\n      <version>2.18.0</version>\n    </dependency>\n    <dependency>\n      <groupId>org.openjdk.jol</groupId>\n      <artifactId>jol-core</artifactId>\n      <version>0.17</version>\n      <scope>test</scope>\n    </dependency>\n    <dependency>\n      <groupId>org.apache.commons</groupId>\n      <artifactId>commons-lang3</artifactId>\n      <version>3.17.0</version>\n      <scope>test</scope>\n    </dependency>\n  </dependencies>\n  <reporting>\n    <plugins>\n      <plugin>\n        <artifactId>maven-checkstyle-plugin</artifactId>\n        <reportSets>\n          <reportSet>\n            <reports>\n              <report>checkstyle</report>\n            </reports>\n          </reportSet>\n        </reportSets>\n      </plugin>\n      <!-- Requires setting 'export MAVEN_OPTS=\"-Xmx512m -XX:MaxPermSize=128m\" ' -->\n      <plugin>\n        <groupId>com.github.spotbugs</groupId>\n        <artifactId>spotbugs-maven-plugin</artifactId>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-changes-plugin</artifactId>\n        <version>${commons.changes.version}</version>\n        <configuration>\n          <issueLinkTemplate>%URL%/%ISSUE%</issueLinkTemplate>\n        </configuration>\n        <reportSets>\n          <reportSet>\n            <reports>\n              <report>changes-report</report>\n              <report>jira-report</report>\n            </reports>\n          </reportSet>\n        </reportSets>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.maven.plugins</groupId>\n        <artifactId>maven-pmd-plugin</artifactId>\n      </plugin>\n      <plugin>\n        <groupId>org.codehaus.mojo</groupId>\n        <artifactId>taglist-maven-plugin</artifactId>\n        <configuration>\n          <tagListOptions>\n            <tagClasses>\n              <tagClass>\n                <displayName>Needs Work</displayName>\n                <tags>\n                  <tag>\n                    <matchString>TODO</matchString>\n                    <matchType>exact</matchType>\n                  </tag>\n                  <tag>\n                    <matchString>FIXME</matchString>\n                    <matchType>exact</matchType>\n                  </tag>\n                  <tag>\n                    <matchString>XXX</matchString>\n                    <matchType>exact</matchType>\n                  </tag>\n                </tags>\n              </tagClass>\n              <tagClass>\n                <displayName>Noteable Markers</displayName>\n                <tags>\n                  <tag>\n                    <matchString>NOTE</matchString>\n                    <matchType>exact</matchType>\n                  </tag>\n                  <tag>\n                    <matchString>NOPMD</matchString>\n                    <matchType>exact</matchType>\n                  </tag>\n                  <tag>\n                    <matchString>NOSONAR</matchString>\n                    <matchType>exact</matchType>\n                  </tag>\n                </tags>\n              </tagClass>\n            </tagClasses>\n          </tagListOptions>\n        </configuration>\n      </plugin>\n      <plugin>\n        <groupId>org.apache.rat</groupId>\n        <artifactId>apache-rat-plugin</artifactId>\n        <configuration>\n          <excludes>\n            <exclude>src/test/resources/images/**/*</exclude>\n            <exclude>src/test/resources/IMAGING-*/*</exclude>\n            <exclude>src/test/data/**/*.xpm</exclude>\n            <exclude>src/test/data/**/*.pam</exclude>\n            <exclude>src/test/data/**/*.pbm</exclude>\n            <exclude>src/test/data/**/*.pgm</exclude>\n            <exclude>src/test/data/**/*.ppm</exclude>\n            <exclude>src/test/data/**/*.xbm</exclude>\n            <exclude>src/test/data/**/*.bmp</exclude>\n            <exclude>src/test/data/**/*.tga</exclude>\n            <exclude>src/test/data/**/*.hdr</exclude>\n            <exclude>src/main/resources/org/apache/commons/imaging/formats/xpm/rgb.txt</exclude>\n            <exclude>.asf.yaml</exclude>\n          </excludes>\n        </configuration>\n      </plugin>\n    </plugins>\n  </reporting>\n  <developers>\n    <developer>\n      <name>Charles M. Chen</name>\n      <id>cmchen</id>\n    </developer>\n    <developer>\n      <name>Philipp Koch</name>\n      <id>pkoch</id>\n    </developer>\n    <developer>\n      <name>Jeremias Maerki</name>\n      <id>jeremias</id>\n    </developer>\n    <developer>\n      <name>Craig Russell</name>\n      <id>clr</id>\n    </developer>\n    <developer>\n      <name>Yoav Shapira</name>\n      <id>yoavs</id>\n    </developer>\n    <developer>\n      <name>Carsten Ziegeler</name>\n      <id>cziegeler</id>\n    </developer>\n    <developer>\n      <name>Damjan Jovanovic</name>\n      <id>damjan</id>\n    </developer>\n    <developer>\n      <name>Matt Benson</name>\n      <id>mbenson</id>\n    </developer>\n    <developer>\n      <id>ggregory</id>\n      <name>Gary Gregory</name>\n      <email>ggregory at apache.org</email>\n      <url>https://www.garygregory.com</url>\n      <organization>The Apache Software Foundation</organization>\n      <organizationUrl>https://www.apache.org/</organizationUrl>\n      <roles>\n        <role>PMC Member</role>\n      </roles>\n      <timezone>America/New_York</timezone>\n      <properties>\n        <picUrl>https://people.apache.org/~ggregory/img/garydgregory80.png</picUrl>\n      </properties>\n    </developer>\n  </developers>\n  <contributors>\n    <contributor>\n      <name>Adrian Moerchen</name>\n    </contributor>\n    <contributor>\n      <name>Alex Vigdor</name>\n    </contributor>\n    <contributor>\n      <name>Craig Kelly</name>\n    </contributor>\n    <contributor>\n      <name>Gary Lucas</name>\n    </contributor>\n    <contributor>\n      <name>Gavin Shiels</name>\n    </contributor>\n    <contributor>\n      <name>Peter Royal</name>\n    </contributor>\n    <contributor>\n      <name>Piyush Kapoor</name>\n    </contributor>\n    <contributor>\n      <name>Tars Joris</name>\n    </contributor>\n    <contributor>\n      <name>VVD</name>\n    </contributor>\n    <contributor>\n      <name>Wanja Gayk</name>\n    </contributor>\n    <contributor>\n      <name>Arturo Bernal</name>\n    </contributor>\n  </contributors>\n</project>\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 0efece9d45f04d7d73ef59d899de9076edb39d16)
++++ b/pom.xml	(date 1740084816156)
+@@ -284,6 +284,11 @@
+         <artifactId>maven-pmd-plugin</artifactId>
+       </plugin>
+       <plugin>
++        <groupId>org.jacoco</groupId>
++        <artifactId>jacoco-maven-plugin</artifactId>
++        <version>0.8.13-SNAPSHOT</version>
++      </plugin>
++      <plugin>
+         <groupId>org.codehaus.mojo</groupId>
+         <artifactId>taglist-maven-plugin</artifactId>
+         <configuration>
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+--- /dev/null	(date 1740084816160)
++++ b/.idea/misc.xml	(date 1740084816160)
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ExternalStorageConfigurationManager" enabled="true" />
++  <component name="MavenProjectsManager">
++    <option name="originalFiles">
++      <list>
++        <option value="$PROJECT_DIR$/pom.xml" />
++      </list>
++    </option>
++  </component>
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_22" project-jdk-name="homebrew-23" project-jdk-type="JavaSDK" />
++</project>
+\ No newline at end of file
+Index: .idea/encodings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+new file mode 100644
+--- /dev/null	(date 1740084816159)
++++ b/.idea/encodings.xml	(date 1740084816159)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="Encoding">
++    <file url="file://$PROJECT_DIR$" charset="UTF-8" />
++    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
++    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.gitignore b/.idea/.gitignore
+new file mode 100644
+--- /dev/null	(date 1740084816164)
++++ b/.idea/.gitignore	(date 1740084816164)
+@@ -0,0 +1,3 @@
++# Default ignored files
++/shelf/
++/workspace.xml
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1740084816162)
++++ b/.idea/vcs.xml	(date 1740084816162)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+new file mode 100644
+--- /dev/null	(date 1740084816166)
++++ b/.idea/compiler.xml	(date 1740084816166)
+@@ -0,0 +1,8 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="JavacSettings">
++    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
++      <module name="commons-imaging" options="-proc:none" />
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/jarRepositories.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+new file mode 100644
+--- /dev/null	(date 1740084816165)
++++ b/.idea/jarRepositories.xml	(date 1740084816165)
+@@ -0,0 +1,25 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="RemoteRepositoriesConfiguration">
++    <remote-repository>
++      <option name="id" value="central" />
++      <option name="name" value="Central Repository" />
++      <option name="url" value="https://repo.maven.apache.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="apache.snapshots" />
++      <option name="name" value="Apache Snapshot Repository" />
++      <option name="url" value="https://repository.apache.org/snapshots" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="central" />
++      <option name="name" value="Maven Central repository" />
++      <option name="url" value="https://repo1.maven.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="jboss.community" />
++      <option name="name" value="JBoss Community repository" />
++      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
++    </remote-repository>
++  </component>
++</project>
+\ No newline at end of file
