@@ -22,6 +22,7 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+import org.apache.CoverageTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -29,8 +30,8 @@ public class ImageDumpTest {
 
     @BeforeAll
     static void setup() {
-        // BranchCoverageTracker.reset();  // Reset before tests start
-        System.out.println("Test suite started... aaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        System.out.println("Test suite started... ");
+        CoverageTester.setNumberOfBranches(42);
     }
 
     @Test

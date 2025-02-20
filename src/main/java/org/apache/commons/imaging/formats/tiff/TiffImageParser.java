@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.CoverageTester;
 import org.apache.commons.imaging.AbstractImageParser;
 import org.apache.commons.imaging.FormatCompliance;
 import org.apache.commons.imaging.ImageFormat;
@@ -712,33 +713,47 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
      */
     TiffRasterData getRasterData(final TiffDirectory directory, final ByteOrder byteOrder, TiffImagingParameters params) throws ImagingException, IOException {
         if (params == null) {
+            CoverageTester.addBranchTaken(0); // BRANCH 0
             params = getDefaultParameters();
+        } else {
+            CoverageTester.addBranchTaken(1); // BRANCH 1
         }
 
         final short[] sSampleFmt = directory.getFieldValue(TiffTagConstants.TIFF_TAG_SAMPLE_FORMAT, true);
         if (sSampleFmt == null || sSampleFmt.length < 1) {
+            CoverageTester.addBranchTaken(2); // BRANCH 2
             throw new ImagingException("Directory does not specify numeric raster data");
         }
+
+        CoverageTester.addBranchTaken(3); // BRANCH 3
 
         int samplesPerPixel = 1;
         final TiffField samplesPerPixelField = directory.findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL);
         if (samplesPerPixelField != null) {
+            CoverageTester.addBranchTaken(4); // BRANCH 4
             samplesPerPixel = samplesPerPixelField.getIntValue();
+        } else {
+            CoverageTester.addBranchTaken(5); // BRANCH 5
         }
 
         int[] bitsPerSample = { 1 };
         int bitsPerPixel = samplesPerPixel;
         final TiffField bitsPerSampleField = directory.findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE);
         if (bitsPerSampleField != null) {
+            CoverageTester.addBranchTaken(6); // BRANCH 6
             bitsPerSample = bitsPerSampleField.getIntArrayValue();
             bitsPerPixel = bitsPerSampleField.getIntValueOrArraySum();
+        } else {
+            CoverageTester.addBranchTaken(7); // BRANCH 7
         }
 
         final short compressionFieldValue;
         if (directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION) != null) {
+            CoverageTester.addBranchTaken(8); // BRANCH 8
             compressionFieldValue = directory.getFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);
         } else {
             compressionFieldValue = TiffConstants.COMPRESSION_UNCOMPRESSED_1;
+            CoverageTester.addBranchTaken(9); // BRANCH 9
         }
         final int compression = 0xffff & compressionFieldValue;
 
@@ -747,31 +762,58 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
 
         Rectangle subImage = checkForSubImage(params);
         if (subImage != null) {
+            CoverageTester.addBranchTaken(10); // BRANCH 10
             // Check for valid subimage specification. The following checks
             // are consistent with BufferedImage.getSubimage()
             if (subImage.width <= 0) {
+                CoverageTester.addBranchTaken(11); // BRANCH 11
                 throw new ImagingException("Negative or zero subimage width.");
             }
+
+            CoverageTester.addBranchTaken(12); // BRANCH 12
+
             if (subImage.height <= 0) {
+                CoverageTester.addBranchTaken(13); // BRANCH 13
                 throw new ImagingException("Negative or zero subimage height.");
             }
+
+            CoverageTester.addBranchTaken(14); // BRANCH 14
+
             if (subImage.x < 0 || subImage.x >= width) {
+                CoverageTester.addBranchTaken(15); // BRANCH 15
                 throw new ImagingException("Subimage x is outside raster.");
             }
+
+            CoverageTester.addBranchTaken(16); // BRANCH 16
+
             if (subImage.x + subImage.width > width) {
+                CoverageTester.addBranchTaken(17); // BRANCH 17
                 throw new ImagingException("Subimage (x+width) is outside raster.");
             }
+
+            CoverageTester.addBranchTaken(18); // BRANCH 18
+
             if (subImage.y < 0 || subImage.y >= height) {
+                CoverageTester.addBranchTaken(19); // BRANCH 19
                 throw new ImagingException("Subimage y is outside raster.");
             }
+
+            CoverageTester.addBranchTaken(20); // BRANCH 20
+
             if (subImage.y + subImage.height > height) {
+                CoverageTester.addBranchTaken(21); // BRANCH 21
                 throw new ImagingException("Subimage (y+height) is outside raster.");
             }
+
+            CoverageTester.addBranchTaken(22); // BRANCH 22
 
             // if the subimage is just the same thing as the whole
             // image, suppress the subimage processing
             if (subImage.x == 0 && subImage.y == 0 && subImage.width == width && subImage.height == height) {
+                CoverageTester.addBranchTaken(23); // BRANCH 23
                 subImage = null;
+            } else {
+                CoverageTester.addBranchTaken(24); // BRANCH 24
             }
         }
 
@@ -786,41 +828,70 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
             // dumpOptionalNumberTag(entries, TIFF_TAG_PLANAR_CONFIGURATION);
             final TiffField predictorField = directory.findField(TiffTagConstants.TIFF_TAG_PREDICTOR);
             if (null != predictorField) {
+                CoverageTester.addBranchTaken(25); // BRANCH 25
                 predictor = predictorField.getIntValueOrArraySum();
+            } else {
+                CoverageTester.addBranchTaken(26); // BRANCH 26
             }
         }
 
         // Obtain the planar configuration
         final TiffField pcField = directory.findField(TiffTagConstants.TIFF_TAG_PLANAR_CONFIGURATION);
-        final TiffPlanarConfiguration planarConfiguration = pcField == null ? TiffPlanarConfiguration.CHUNKY
-                : TiffPlanarConfiguration.lenientValueOf(pcField.getIntValue());
+        // final TiffPlanarConfiguration planarConfiguration = pcField == null ? TiffPlanarConfiguration.CHUNKY
+        //         : TiffPlanarConfiguration.lenientValueOf(pcField.getIntValue());
+        final TiffPlanarConfiguration planarConfiguration;
+        if (pcField == null) {
+            CoverageTester.addBranchTaken(27); // BRANCH 27
+            planarConfiguration = TiffPlanarConfiguration.CHUNKY;
+        } else {
+            CoverageTester.addBranchTaken(28); // BRANCH 28
+            planarConfiguration = TiffPlanarConfiguration.lenientValueOf(pcField.getIntValue());
+        }
 
         if (sSampleFmt[0] == TiffTagConstants.SAMPLE_FORMAT_VALUE_IEEE_FLOATING_POINT) {
+            CoverageTester.addBranchTaken(29); // BRANCH 29
             if (bitsPerSample[0] != 32 && bitsPerSample[0] != 64) {
+                CoverageTester.addBranchTaken(41); // BRANCH 41
                 throw new ImagingException("TIFF floating-point data uses unsupported bits-per-sample: " + bitsPerSample[0]);
             }
+            CoverageTester.addBranchTaken(30); // BRANCH 30
 
             if (predictor != -1 && predictor != TiffTagConstants.PREDICTOR_VALUE_NONE
                     && predictor != TiffTagConstants.PREDICTOR_VALUE_FLOATING_POINT_DIFFERENCING) {
+                CoverageTester.addBranchTaken(31); // BRANCH 31
                 throw new ImagingException("TIFF floating-point data uses unsupported horizontal-differencing predictor");
             }
+            CoverageTester.addBranchTaken(32); // BRANCH 32
         } else if (sSampleFmt[0] == TiffTagConstants.SAMPLE_FORMAT_VALUE_TWOS_COMPLEMENT_SIGNED_INTEGER) {
+            CoverageTester.addBranchTaken(33); // BRANCH 33
 
             if (samplesPerPixel != 1) {
+                CoverageTester.addBranchTaken(33); // BRANCH 33
                 throw new ImagingException("TIFF integer data uses unsupported samples per pixel: " + samplesPerPixel);
             }
 
+            CoverageTester.addBranchTaken(34); // BRANCH 34
+
             if (bitsPerPixel != 16 && bitsPerPixel != 32) {
+                CoverageTester.addBranchTaken(35); // BRANCH 35
                 throw new ImagingException("TIFF integer data uses unsupported bits-per-pixel: " + bitsPerPixel);
             }
 
+            CoverageTester.addBranchTaken(36); // BRANCH 36
+
             if (predictor != -1 && predictor != TiffTagConstants.PREDICTOR_VALUE_NONE
                     && predictor != TiffTagConstants.PREDICTOR_VALUE_HORIZONTAL_DIFFERENCING) {
+                CoverageTester.addBranchTaken(37); // BRANCH 37
                 throw new ImagingException("TIFF integer data uses unsupported horizontal-differencing predictor");
             }
+
+            CoverageTester.addBranchTaken(38); // BRANCH 38
         } else {
+            CoverageTester.addBranchTaken(39); // BRANCH 39
             throw new ImagingException("TIFF does not provide a supported raster-data format");
         }
+
+        CoverageTester.addBranchTaken(40); // BRANCH 40
 
         // The photometric interpreter is not used, but the image-based
         // data reader classes require one. So we create a dummy interpreter.

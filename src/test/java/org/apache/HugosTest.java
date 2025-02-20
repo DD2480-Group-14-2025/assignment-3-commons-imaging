@@ -22,30 +22,17 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
-
-
-// @Suite
-// @SelectPackages("my.package.tests")  // Change this to match your test package
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HugosTest {
-
 
     @AfterAll
     void after() {
         System.out.println("Done with everything.");
+        CoverageTester.printResults();
     }
 
     @Test
     void someTest() {
         assertTrue(true);
     }
-
-    // @AfterAll
-    // static void printBranchCoverage() {
-    //     System.out.println("Test suite completed.");
-    //     System.out.println("Branch Coverage Results:");
-    //     for (int i = 0; i < BranchCoverageTracker.branchTaken.length; i++) {
-    //         System.out.println("Branch " + i + ": " + (BranchCoverageTracker.branchTaken[i] ? "TAKEN" : "NOT TAKEN"));
-    //     }
-    // }
 }
