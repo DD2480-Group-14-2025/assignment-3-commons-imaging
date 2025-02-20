@@ -236,6 +236,13 @@ public class GifReadTest extends AbstractGifTest {
         assertNotNull(result);
     }
 
+    /**
+     * Test that ensures a gif image only has 1 xmp datablock.
+     * 
+     * @throws IOException      if the read from file fails
+     * @throws ImagingException As expected if the image contains two xmp data
+     *                          blocks
+     */
     @Test
     public void testGifWithDoubleXMPBlocksThrowsError() throws IOException, ImagingException {
         final File file = TestResources.resourceToFile(
