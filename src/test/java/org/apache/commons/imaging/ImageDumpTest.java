@@ -23,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import org.apache.CoverageTester;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -50,6 +51,12 @@ public class ImageDumpTest {
         imageDump.dumpColorSpace("Ku&]N>!4'C#Jzn+", colorSpace);
 
         assertEquals(3, colorSpace.getNumComponents());
+    }
+
+    @AfterAll
+    static void teardown() {
+        System.out.println("\nCoverage Results:");
+        CoverageTester.printResults();
     }
 
 }
