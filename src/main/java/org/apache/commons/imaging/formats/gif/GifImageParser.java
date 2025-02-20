@@ -478,6 +478,24 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
         return "Graphics Interchange Format";
     }
 
+
+    /* Requirements to be tested
+   (✅-Covered, ❌-Missed)
+   1. Basic functionality
+   ✅ The function correctly extracts the Xml metadata from the Xmp as a string
+   ✅ Returns a correct string if it exists and is correct.
+   2. Error handling
+   ✅ If block.blockCode is not equal to the XMP_COMPLETE_CODE it continues
+   ❌ If the blockBytes.length is less than the XMP_APPLICATION_ID_AND_AUTH code it skips that block
+   ✅ Successfully skips blocks if the compareBytes between the blocks and the XMP codes are correct.
+   ❌ If the blockBytes.length is less than the XMP auth code and magicTrailer.length
+   3.
+   ❌ Creating the string and adding it to the results.
+   4. Return value
+   ✅ If the final result is empty return null
+   ❌ If the final result's size is greater than 1 should throw an ImagingException
+   ❌ If the final result is not empty
+     */
     /**
      * Extracts embedded XML metadata as XML string.
      * <p>
