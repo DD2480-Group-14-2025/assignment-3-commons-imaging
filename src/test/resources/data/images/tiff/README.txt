@@ -24,7 +24,7 @@ limitations under the License.
 1/ron and andy.2.tif                                                      1500x1125  Strips  1500x1125  Chunky  None      None     Unknown    24  8.8.8    RGB        N      
 1/ron and andy.tif                                                        1500x1125  Strips  1500x1125  Chunky  None      None     Unknown    24  8.8.8    RGB        N      
 3/1pagefax.tif                                                            1728x1146  Strips  1728x4969  Chunky  CCITT_1D  None     Unknown     1  1        BiLev Inv  N      
-3/Oregon Scientific DS6639 - DSC_0307 - small CCITT T.4 1D fill.tiff       300x225   Strips   300x225   Chunky  CCITT_3   None     Unknown     1  1        BiLev Inv  N      
+3/Oregon Scientific DS6639 - DSC_0307 - small-43 CCITT T.4 1D fill.tiff       300x225   Strips   300x225   Chunky  CCITT_3   None     Unknown     1  1        BiLev Inv  N
 3/Oregon Scientific DS6639 - DSC_0307 - small CCITT T.4 1D no fill.tiff    300x225   Strips   300x225   Chunky  CCITT_3   None     Unknown     1  1        BiLev Inv  N      
 3/Oregon Scientific DS6639 - DSC_0307 - small CCITT T.4 2D fill.tiff       300x225   Strips   300x225   Chunky  CCITT_3   None     Unknown     1  1        BiLev Inv  N      
 3/Oregon Scientific DS6639 - DSC_0307 - small CCITT T.4 2D no fill.tiff    300x225   Strips   300x225   Chunky  CCITT_3   None     Unknown     1  1        BiLev Inv  N      

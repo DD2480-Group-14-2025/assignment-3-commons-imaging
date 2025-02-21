@@ -37,7 +37,10 @@ public class TiffReadImageInfoTest extends TiffBaseTest {
     // 2. Expected value
     static final String[][] testSet = { { "1/matthew2.tif", "Color Type", "Black and White" },
             { "7/Oregon Scientific DS6639 - DSC_0307 - small - CMYK.tiff", "Color Type", "CMYK" }, { "10/Imaging247.TIFF", "Uses Palette", "true" },
-            { "12/TransparencyTestStripAssociated.tif", "Is Transparent", "true" }, { "14/TestJpegStrips.tiff", "Color Type", "YCbCr" } };
+            { "12/TransparencyTestStripAssociated.tif", "Is Transparent", "true" }, { "14/TestJpegStrips.tiff", "Color Type", "YCbCr" },
+            {"3/1pagefax.tif","Compression Algorithm","ccitt 1d"},//coverage_improve_1
+            {"3/Oregon Scientific DS6639 - DSC_0307 - small CCITT T.6.tiff","Compression Algorithm","ccitt group 4"}//coverage_improve_2
+    };
 
     private File getTiffFile(final String name) {
         final File tiffFolder = new File(ImagingTestConstants.TEST_IMAGE_FOLDER, "tiff");
