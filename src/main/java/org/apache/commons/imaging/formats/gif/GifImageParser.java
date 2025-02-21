@@ -480,7 +480,7 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
 
     /*
      * Requirements to be tested
-     * (✅-Covered, ❌-Missed, ⚠️-New test implemented)
+     * (✅-Covered, ❌-Missed, 👍-New test implemented)
      * 1. Basic functionality
      * ✅ The function correctly extracts the Xml metadata from the Xmp as a string
      * ✅ Returns a correct string if it exists and is correct.
@@ -490,11 +490,11 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
      * ✅ Successfully skips blocks if the compareBytes between the blocks and the XMP codes are correct.
      * ❌ If the blockBytes.length is less than the XMP auth code an magicTrailer.length
      * 3.
-     * ⚠️ Creating the string and adding it to the results.
+     * 👍 Creating the string and adding it to the results.
      * 4. Return value
      * ✅ If the final result is empty return null
-     * ⚠️ If the final result's size is greater than one it should throw an exception due to two xmp blocks ImagingException
-     * ⚠️ If the final result is not empty
+     * 👍  If the final result's size is greater than one it should throw an exception due to two xmp blocks ImagingException
+     * 👍 If the final result is not empty
      */
     /**
      * Extracts embedded XML metadata as XML string.
@@ -515,40 +515,7 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
 
             final List<GifBlock> blocks = readBlocks(ghi, is, true, null);
 
-            final List<String> result = new ArrayList<>();
-            for (final GifBlock block : blocks) {
-                if (block.blockCode != XMP_COMPLETE_CODE) {
-                    continue;
-                }
-
-                final GenericGifBlock genericBlock = (GenericGifBlock) block;
-
-                final byte[] blockBytes = genericBlock.appendSubBlocks(true);
-                if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length) {
-                    continue;
-                }
-
-                if (!BinaryFunctions.compareBytes(blockBytes, 0, XMP_APPLICATION_ID_AND_AUTH_CODE, 0, XMP_APPLICATION_ID_AND_AUTH_CODE.length)) {
-                    continue;
-                }
-
-                final byte[] gifMagicTrailer = new byte[256];
-                for (int magic = 0; magic <= 0xff; magic++) {
-                    gifMagicTrailer[magic] = (byte) (0xff - magic);
-                }
-
-                if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length + gifMagicTrailer.length) {
-                    continue;
-                }
-                if (!BinaryFunctions.compareBytes(blockBytes, blockBytes.length - gifMagicTrailer.length, gifMagicTrailer, 0, gifMagicTrailer.length)) {
-                    throw new ImagingException("XMP block in GIF missing magic trailer.");
-                }
-
-                // XMP is UTF-8 encoded xml.
-                final String xml = new String(blockBytes, XMP_APPLICATION_ID_AND_AUTH_CODE.length,
-                        blockBytes.length - (XMP_APPLICATION_ID_AND_AUTH_CODE.length + gifMagicTrailer.length), StandardCharsets.UTF_8);
-                result.add(xml);
-            }
+            final List<String> result = getXmpStringBlocks(blocks);
 
             if (result.isEmpty()) {
                 return null;
@@ -558,6 +525,44 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
             }
             return result.get(0);
         }
+    }
+
+    private ArrayList<String> getXmpStringBlocks(List<GifBlock> blocks) throws IOException {
+        ArrayList<String> result = new ArrayList<>();
+        for (final GifBlock block : blocks) {
+            if (block.blockCode != XMP_COMPLETE_CODE) {
+                continue;
+            }
+
+            final GenericGifBlock genericBlock = (GenericGifBlock) block;
+
+            final byte[] blockBytes = genericBlock.appendSubBlocks(true);
+            if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length) {
+                continue;
+            }
+
+            if (!BinaryFunctions.compareBytes(blockBytes, 0, XMP_APPLICATION_ID_AND_AUTH_CODE, 0, XMP_APPLICATION_ID_AND_AUTH_CODE.length)) {
+                continue;
+            }
+
+            final byte[] gifMagicTrailer = new byte[256];
+            for (int magic = 0; magic <= 0xff; magic++) {
+                gifMagicTrailer[magic] = (byte) (0xff - magic);
+            }
+
+            if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length + gifMagicTrailer.length) {
+                continue;
+            }
+            if (!BinaryFunctions.compareBytes(blockBytes, blockBytes.length - gifMagicTrailer.length, gifMagicTrailer, 0, gifMagicTrailer.length)) {
+                throw new ImagingException("XMP block in GIF missing magic trailer.");
+            }
+
+            // XMP is UTF-8 encoded xml.
+            final String xml = new String(blockBytes, XMP_APPLICATION_ID_AND_AUTH_CODE.length,
+                    blockBytes.length - (XMP_APPLICATION_ID_AND_AUTH_CODE.length + gifMagicTrailer.length), StandardCharsets.UTF_8);
+            result.add(xml);
+        }
+        return result;
     }
 
     private List<GifBlock> readBlocks(final GifHeaderInfo ghi, final InputStream is, final boolean stopBeforeImageData, final FormatCompliance formatCompliance)
