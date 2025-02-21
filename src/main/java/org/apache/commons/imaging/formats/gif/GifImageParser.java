@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.CoverageTester;
 import org.apache.commons.imaging.AbstractImageParser;
 import org.apache.commons.imaging.FormatCompliance;
 import org.apache.commons.imaging.ImageFormat;
@@ -507,24 +506,18 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
      */
     @Override
     public String getXmpXml(final ByteSource byteSource, final XmpImagingParameters<GifImagingParameters> params) throws ImagingException, IOException {
-        CoverageTester.increaseTotalRuns();
         try (InputStream is = byteSource.getInputStream()) {
             final GifHeaderInfo ghi = readHeader(is, null);
 
             if (ghi.globalColorTableFlag) {
-                CoverageTester.addBranchTaken(0);
                 readColorTable(is, ghi.sizeOfGlobalColorTable);
-            } else {
-                CoverageTester.addBranchTaken(1);
             }
 
             final List<GifBlock> blocks = readBlocks(ghi, is, true, null);
 
             final List<String> result = new ArrayList<>();
             for (final GifBlock block : blocks) {
-                CoverageTester.addBranchTaken(2);
                 if (block.blockCode != XMP_COMPLETE_CODE) {
-                    CoverageTester.addBranchTaken(3);
                     continue;
                 }
 
@@ -532,27 +525,22 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
 
                 final byte[] blockBytes = genericBlock.appendSubBlocks(true);
                 if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length) {
-                    CoverageTester.addBranchTaken(4);
                     continue;
                 }
 
                 if (!BinaryFunctions.compareBytes(blockBytes, 0, XMP_APPLICATION_ID_AND_AUTH_CODE, 0, XMP_APPLICATION_ID_AND_AUTH_CODE.length)) {
-                    CoverageTester.addBranchTaken(5);
                     continue;
                 }
 
                 final byte[] gifMagicTrailer = new byte[256];
                 for (int magic = 0; magic <= 0xff; magic++) {
-                    CoverageTester.addBranchTaken(6);
                     gifMagicTrailer[magic] = (byte) (0xff - magic);
                 }
 
                 if (blockBytes.length < XMP_APPLICATION_ID_AND_AUTH_CODE.length + gifMagicTrailer.length) {
-                    CoverageTester.addBranchTaken(7);
                     continue;
                 }
                 if (!BinaryFunctions.compareBytes(blockBytes, blockBytes.length - gifMagicTrailer.length, gifMagicTrailer, 0, gifMagicTrailer.length)) {
-                    CoverageTester.addBranchTaken(8);
                     throw new ImagingException("XMP block in GIF missing magic trailer.");
                 }
 
@@ -563,14 +551,11 @@ public class GifImageParser extends AbstractImageParser<GifImagingParameters> im
             }
 
             if (result.isEmpty()) {
-                CoverageTester.addBranchTaken(9);
                 return null;
             }
             if (result.size() > 1) {
-                CoverageTester.addBranchTaken(10);
                 throw new ImagingException("More than one XMP Block in GIF.");
             }
-            CoverageTester.addBranchTaken(11);
             return result.get(0);
         }
     }
