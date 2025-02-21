@@ -34,7 +34,7 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
      * ✅ A single-color image (whiteImage) ensures that no unnecessary cuts are made.
      * ✅ A two-color image (whiteAndBlackImage) verifies a simple split scenario.
      * ✅ A multi-color image (rainbowImage) tests how colors are grouped when more than two colors exist.
-     * ❌ Handling of extreme cases (e.g., all pixels being the same, forcing edge case sorting logic).
+     * ✅ Handling of extreme cases (e.g., all pixels being the same, forcing edge case sorting logic).
      * ❌ Verify sorting behavior by ensuring different ColorComponent values (RED, GREEN, BLUE, ALPHA) are correctly evaluated.
      * 👍 Test cases where the median index lands at the end of the list to ensure proper adjustments.
      * ❌ Check cases that could cause an IllegalArgumentException or an ImagingException, such as an empty colorGroups list or an invalid ColorComponent
