@@ -23,6 +23,13 @@ import org.apache.commons.imaging.ImagingException;
 
 public class MostPopulatedBoxesMedianCut implements MedianCut {
 
+    /**
+     * According to lizard, the original CCN is 18. This version of refactoring decreases it to 3.
+     * @param colorGroups
+     * @param ignoreAlpha
+     * @return if next median cut is performed successfully
+     * @throws ImagingException
+     */
     @Override
     public boolean performNextMedianCut(final List<ColorGroup> colorGroups, final boolean ignoreAlpha) throws ImagingException {
         ColorGroup colorGroup = findMaxPointsColorGroup(colorGroups);
