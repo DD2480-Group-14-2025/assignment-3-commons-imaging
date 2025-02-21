@@ -173,7 +173,7 @@
             <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
             <includeTestSourceDirectory>true</includeTestSourceDirectory>
             <enableRulesSummary>false</enableRulesSummary>
-           <excludes>target/**</excludes>
+            <excludes>target/**</excludes>
           </configuration>
         </plugin>
         <plugin>
