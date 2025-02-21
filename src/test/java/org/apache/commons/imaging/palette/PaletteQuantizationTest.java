@@ -16,17 +16,17 @@
  */
 package org.apache.commons.imaging.palette;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.imaging.AbstractImagingTest;
 import org.apache.commons.imaging.ImagingException;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PaletteQuantizationTest extends AbstractImagingTest {
     final private List<ColorGroup> colorGroups = new ArrayList<>();
@@ -157,4 +157,51 @@ public class PaletteQuantizationTest extends AbstractImagingTest {
         // Since the group has no points (count is 0), it is invalid and cannot be used for a median cut
         assertFalse(medianCut.performNextMedianCut(colorGroups, ignoreAlpha));
     }
+
+    @Test
+    public void testMedianIndexAtLastElement() throws ImagingException {
+        List<ColorCount> colorCounts = Arrays.asList(
+                new ColorCount(0xFF0000), // Red
+                new ColorCount(0x00FF00), // Green
+                new ColorCount(0x0000FF)  // Blue
+        );
+
+        // Setting counts such that the last element is chosen as median
+        colorCounts.get(0).count = 1;
+        colorCounts.get(1).count = 1;
+        colorCounts.get(2).count = 2; // Forces median at the last index
+
+        ColorGroup colorGroup = new ColorGroup(colorCounts, false);
+        List<ColorGroup> colorGroups = new ArrayList<>();
+        colorGroups.add(colorGroup);
+
+        MostPopulatedBoxesMedianCut medianCut = new MostPopulatedBoxesMedianCut();
+        assertTrue(medianCut.performNextMedianCut(colorGroups, false));
+    }
+
+    @Test
+    public void testSwitchStatementCoversGreen() throws ImagingException {
+        List<ColorCount> colorCounts = new ArrayList<>();
+        colorCounts.add(new ColorCount(0x00AA00)); // Medium Green
+        colorCounts.add(new ColorCount(0x008800)); // Darker Green
+        colorCounts.add(new ColorCount(0x00FF00)); // Bright Green
+
+        // Ensure counts favor green being the best color to split on
+        colorCounts.get(0).count = 3;
+        colorCounts.get(1).count = 2;
+        colorCounts.get(2).count = 5;
+
+        ColorGroup colorGroup = new ColorGroup(colorCounts, false);
+        List<ColorGroup> colorGroups = new ArrayList<>();
+        colorGroups.add(colorGroup);
+
+        MostPopulatedBoxesMedianCut medianCut = new MostPopulatedBoxesMedianCut();
+
+        // Execute function
+        boolean result = medianCut.performNextMedianCut(colorGroups, false);
+
+        // Validate the expected outcomes
+        assertTrue(result);
+    }
+
 }

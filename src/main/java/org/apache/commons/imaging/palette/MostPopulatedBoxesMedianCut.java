@@ -36,10 +36,13 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
      * ✅ A multi-color image (rainbowImage) tests how colors are grouped when more than two colors exist.
      * ❌ Handling of extreme cases (e.g., all pixels being the same, forcing edge case sorting logic).
      * ❌ Verify sorting behavior by ensuring different ColorComponent values (RED, GREEN, BLUE, ALPHA) are correctly evaluated.
-     * ❌ Test cases where the median index lands at the start or end of the list to ensure proper adjustments.
+     * 👍 Test cases where the median index lands at the end of the list to ensure proper adjustments.
      * ❌ Check cases that could cause an IllegalArgumentException or an ImagingException, such as an empty colorGroups list or an invalid ColorComponent
      * ✅ Simulate multiple consecutive median cuts to ensure stability and correctness over repeated function calls.
-     * ❌ The function iterates over all color components (RED, GREEN, BLUE, ALPHA).
+     * ❌ The function iterates over color component ALPHA.
+     * ✅ The function iterates over color component RED.
+     * 👍 The function iterates over color component GREEN.
+     * ❌ The function iterates over color component BLUE.
      * @param colorGroups
      * @param ignoreAlpha
      * @return if the next median cut can be performed
@@ -125,20 +128,20 @@ public class MostPopulatedBoxesMedianCut implements MedianCut {
         final ColorCount medianValue = colorCounts.get(bestMedianIndex);
         final int limit;
         switch (bestColorComponent) {
-        case ALPHA:
-            limit = medianValue.alpha;
-            break;
-        case RED:
-            limit = medianValue.red;
-            break;
-        case GREEN:
-            limit = medianValue.green;
-            break;
-        case BLUE:
-            limit = medianValue.blue;
-            break;
-        default:
-            throw new IllegalArgumentException("Bad mode: " + bestColorComponent);
+            case ALPHA:
+                limit = medianValue.alpha;
+                break;
+            case RED:
+                limit = medianValue.red;
+                break;
+            case GREEN:
+                limit = medianValue.green;
+                break;
+            case BLUE:
+                limit = medianValue.blue;
+                break;
+            default:
+                throw new IllegalArgumentException("Bad mode: " + bestColorComponent);
         }
         colorGroup.cut = new ColorGroupCut(lowerGroup, upperGroup, bestColorComponent, limit);
         return true;
