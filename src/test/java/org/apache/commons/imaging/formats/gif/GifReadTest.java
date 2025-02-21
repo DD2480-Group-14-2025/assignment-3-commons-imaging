@@ -34,6 +34,7 @@ import org.apache.commons.imaging.Imaging;
 import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.bytesource.ByteSource;
 import org.apache.commons.imaging.common.ImageMetadata;
+import org.apache.commons.imaging.common.XmpImagingParameters;
 import org.apache.commons.imaging.test.TestResources;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -152,8 +153,10 @@ public class GifReadTest extends AbstractGifTest {
     }
 
     /**
-     * The GIF image Lzw compression may contain a table with length inferior to the length of entries in the image data. Which results in an
-     * ArrayOutOfBoundsException. This verifies that instead of throwing an AOOBE, we are handling the case and informing the user why the parser failed to read
+     * The GIF image Lzw compression may contain a table with length inferior to the
+     * length of entries in the image data. Which results in an
+     * ArrayOutOfBoundsException. This verifies that instead of throwing an AOOBE,
+     * we are handling the case and informing the user why the parser failed to read
      * it, by throwin an ImageReadException with a more descriptive message.
      *
      * <p>
@@ -164,13 +167,16 @@ public class GifReadTest extends AbstractGifTest {
      */
     @Test
     public void testUncaughtExceptionOssFuzz33464() throws IOException {
-        final File file = TestResources.resourceToFile("/images/gif/oss-fuzz-33464/clusterfuzz-testcase-minimized-ImagingGifFuzzer-5174009164595200");
+        final File file = TestResources.resourceToFile(
+                "/images/gif/oss-fuzz-33464/clusterfuzz-testcase-minimized-ImagingGifFuzzer-5174009164595200");
         final GifImageParser parser = new GifImageParser();
-        assertThrows(ImagingException.class, () -> parser.getBufferedImage(ByteSource.file(file), new GifImagingParameters()));
+        assertThrows(ImagingException.class,
+                () -> parser.getBufferedImage(ByteSource.file(file), new GifImagingParameters()));
     }
 
     /**
-     * The GIF image data may lead to out of bound array access. This test verifies that we handle that case and raise an appropriate exception.
+     * The GIF image data may lead to out of bound array access. This test verifies
+     * that we handle that case and raise an appropriate exception.
      *
      * <p>
      * See Google OSS Fuzz issue 33501
@@ -180,9 +186,11 @@ public class GifReadTest extends AbstractGifTest {
      */
     @Test
     public void testUncaughtExceptionOssFuzz33501() throws IOException {
-        final File file = TestResources.resourceToFile("/images/gif/oss-fuzz-33501/clusterfuzz-testcase-minimized-ImagingGifFuzzer-5914278319226880");
+        final File file = TestResources.resourceToFile(
+                "/images/gif/oss-fuzz-33501/clusterfuzz-testcase-minimized-ImagingGifFuzzer-5914278319226880");
         final GifImageParser parser = new GifImageParser();
-        assertThrows(ImagingException.class, () -> parser.getBufferedImage(ByteSource.file(file), new GifImagingParameters()));
+        assertThrows(ImagingException.class,
+                () -> parser.getBufferedImage(ByteSource.file(file), new GifImagingParameters()));
     }
 
     /**
@@ -196,8 +204,47 @@ public class GifReadTest extends AbstractGifTest {
      */
     @Test
     public void testUncaughtExceptionOssFuzz34185() throws IOException {
-        final File file = TestResources.resourceToFile("/images/gif/IMAGING-318/clusterfuzz-testcase-minimized-ImagingGifFuzzer-5005192379629568");
+        final File file = TestResources.resourceToFile(
+                "/images/gif/IMAGING-318/clusterfuzz-testcase-minimized-ImagingGifFuzzer-5005192379629568");
         final GifImageParser parser = new GifImageParser();
-        assertThrows(ImagingException.class, () -> parser.getBufferedImage(ByteSource.file(file), new GifImagingParameters()));
+        assertThrows(ImagingException.class,
+                () -> parser.getBufferedImage(ByteSource.file(file), new GifImagingParameters()));
+    }
+
+    /**
+     * Test that a Validgif returns a string from the getXmlXmp function.
+     * 
+     * @throws IOException      if it fails to read the test image
+     * @throws ImagingException If it fails to extract the xml from the image
+     */
+    @Test
+    public void testValidGifReturnsStringFromGetXmlxmp() throws IOException, ImagingException {
+        final File file = TestResources.resourceToFile("/images/gif/GIFS/giphy.gif");
+
+        ByteSource byteSource = ByteSource.file(file);
+        XmpImagingParameters<GifImagingParameters> params = new XmpImagingParameters<>();
+
+        final GifImageParser parser = new GifImageParser();
+
+        assertNotNull(parser.getXmpXml(byteSource, params));
+    }
+
+    /**
+     * Test that ensures a gif image only has 1 xmp datablock.
+     * 
+     * @throws IOException      if the read from file fails
+     * @throws ImagingException As expected if the image contains two xmp data
+     *                          blocks
+     */
+    @Test
+    public void testGifWithDoubleXMPBlocksThrowsError() throws IOException, ImagingException {
+        final File file = TestResources.resourceToFile(
+                "/images/gif/GIFS/giphy_cursed.gif");
+        final GifImageParser parser = new GifImageParser();
+        ByteSource byteSource = ByteSource.file(file);
+        XmpImagingParameters<GifImagingParameters> params = new XmpImagingParameters<>();
+
+        assertThrows(ImagingException.class,
+                () -> parser.getXmpXml(byteSource, params));
     }
 }
