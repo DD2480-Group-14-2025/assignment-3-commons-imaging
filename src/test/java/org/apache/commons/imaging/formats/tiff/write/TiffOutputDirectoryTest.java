@@ -17,22 +17,32 @@
 package org.apache.commons.imaging.formats.tiff.write;
 
 import static org.apache.commons.imaging.formats.tiff.constants.TiffTagConstants.TIFF_TAG_DOCUMENT_NAME;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
+import org.apache.commons.imaging.ImagingException;
 import org.apache.commons.imaging.formats.tiff.constants.TiffConstants;
 import org.apache.commons.imaging.formats.tiff.constants.TiffDirectoryConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteOrder;
+
 public class TiffOutputDirectoryTest {
 
     private TiffOutputDirectory directory;
+    private AbstractTiffImageWriter writer;
 
     @BeforeEach
     public void setUp() {
         directory = new TiffOutputDirectory(TiffDirectoryConstants.DIRECTORY_TYPE_ROOT, TiffConstants.DEFAULT_TIFF_BYTE_ORDER);
+        writer = new AbstractTiffImageWriter() {
+            @Override
+            public void write(OutputStream os, TiffOutputSet outputSet) throws IOException, ImagingException {
+                // Placeholder due to abstact class
+            }
+        };
     }
 
     @Test
@@ -45,5 +55,26 @@ public class TiffOutputDirectoryTest {
         assertEquals(TIFF_TAG_DOCUMENT_NAME, field.tagInfo);
         final byte[] documentNameAsBytes = TIFF_TAG_DOCUMENT_NAME.encodeValue(TiffConstants.DEFAULT_TIFF_BYTE_ORDER, "Test.tiff");
         assertArrayEquals(field.getData(), documentNameAsBytes);
+    }
+
+    @Test
+    public void testTiffOutputSetIsNullValidateDirectory() {
+        TiffOutputSet emptyOutputSet = new TiffOutputSet(ByteOrder.BIG_ENDIAN);
+
+        ImagingException exception = assertThrows(ImagingException.class,
+                () -> writer.validateDirectories(emptyOutputSet));
+
+        // Ensuring test messages is correct since assertThrows can catch any exception
+        assertTrue(exception.getMessage().contains("No directories."));
+    }
+
+    @Test
+    public void testTiffOutputThrowsOnNoRootDirectory() throws ImagingException {
+        TiffOutputSet set = new TiffOutputSet(ByteOrder.LITTLE_ENDIAN);
+        TiffOutputDirectory exif = new TiffOutputDirectory(TiffDirectoryConstants.DIRECTORY_TYPE_EXIF, ByteOrder.BIG_ENDIAN);
+        set.addDirectory(exif); // only EXIF directory, no root directory
+        ImagingException exception = assertThrows(ImagingException.class, () -> writer.validateDirectories(set));
+
+        assertTrue(exception.getMessage().contains("Missing root directory."));
     }
 }
