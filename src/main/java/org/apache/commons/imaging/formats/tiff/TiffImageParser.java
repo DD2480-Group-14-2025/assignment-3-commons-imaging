@@ -215,7 +215,6 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
     public BufferedImage getBufferedImage(final ByteSource byteSource, TiffImagingParameters params) throws ImagingException, IOException {
         CoverageTester.increaseTotalRuns();
         if (params == null) {
-            CoverageTester.addBranchTaken(0); //Branch 0
             params = new TiffImagingParameters();
         }
         final FormatCompliance formatCompliance = FormatCompliance.getDefault();
@@ -225,7 +224,6 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
         final TiffDirectory directory = contents.directories.get(0);
         final BufferedImage result = directory.getTiffImage(byteOrder, params);
         if (null == result) {
-            CoverageTester.addBranchTaken(1); //Branch 1
             throw new ImagingException("TIFF does not contain an image.");
         }
         return result;
@@ -233,159 +231,132 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
 
     protected BufferedImage getBufferedImage(final TiffDirectory directory, final ByteOrder byteOrder, final TiffImagingParameters params)
             throws ImagingException, IOException {
-        CoverageTester.increaseTotalRuns();
+
         final short compressionFieldValue;
         if (directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION) != null) {
-            CoverageTester.addBranchTaken(0); //Branch 0    
             compressionFieldValue = directory.getFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);
         } else {
-            CoverageTester.addBranchTaken(1); //Branch 1
             compressionFieldValue = TiffConstants.COMPRESSION_UNCOMPRESSED_1;
         }
         final int compression = 0xffff & compressionFieldValue;
         final int width = directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH);
         final int height = directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH);
 
-        final Rectangle subImage = checkForSubImage(params);
-        if (subImage != null) {
-            CoverageTester.addBranchTaken(2); //Branch 2
-            // Check for valid subimage specification. The following checks
-            // are consistent with BufferedImage.getSubimage()
-            if (subImage.width <= 0) {
-                CoverageTester.addBranchTaken(3); //Branch 3
-                throw new ImagingException("Negative or zero subimage width.");
-            }
-            if (subImage.height <= 0) {
-                CoverageTester.addBranchTaken(4); //Branch 4
-                throw new ImagingException("Negative or zero subimage height.");
-            }
-            if (subImage.x < 0 || subImage.x >= width) {
-                CoverageTester.addBranchTaken(5); //Branch 5
-                throw new ImagingException("Subimage x is outside raster.");
-            }
-            if (subImage.x + subImage.width > width) {
-                CoverageTester.addBranchTaken(6); //Branch 6
-                throw new ImagingException("Subimage (x+width) is outside raster.");
-            }
-            if (subImage.y < 0 || subImage.y >= height) {
-                CoverageTester.addBranchTaken(7); //Branch 7
-                    throw new ImagingException("Subimage y is outside raster.");
-            }
-            if (subImage.y + subImage.height > height) {
-                CoverageTester.addBranchTaken(8); //Branch 8
-                throw new ImagingException("Subimage (y+height) is outside raster.");
-            }
-        }
+        validateSubImageParameters(params, width, height);
 
         int samplesPerPixel = 1;
         final TiffField samplesPerPixelField = directory.findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL);
         if (samplesPerPixelField != null) {
-            CoverageTester.addBranchTaken(9); //Branch 9
             samplesPerPixel = samplesPerPixelField.getIntValue();
         }
         int[] bitsPerSample = { 1 };
         int bitsPerPixel = samplesPerPixel;
         final TiffField bitsPerSampleField = directory.findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE);
         if (bitsPerSampleField != null) {
-            CoverageTester.addBranchTaken(10); //Branch 10
             bitsPerSample = bitsPerSampleField.getIntArrayValue();
             bitsPerPixel = bitsPerSampleField.getIntValueOrArraySum();
         }
 
-        // int bitsPerPixel = getTagAsValueOrArraySum(entries,
-        // TIFF_TAG_BITS_PER_SAMPLE);
-
         int predictor = -1;
-        {
-            // dumpOptionalNumberTag(entries, TIFF_TAG_FILL_ORDER);
-            // dumpOptionalNumberTag(entries, TIFF_TAG_FREE_BYTE_COUNTS);
-            // dumpOptionalNumberTag(entries, TIFF_TAG_FREE_OFFSETS);
-            // dumpOptionalNumberTag(entries, TIFF_TAG_ORIENTATION);
-            // dumpOptionalNumberTag(entries, TIFF_TAG_PLANAR_CONFIGURATION);
-            final TiffField predictorField = directory.findField(TiffTagConstants.TIFF_TAG_PREDICTOR);
-            if (null != predictorField) {
-                CoverageTester.addBranchTaken(11); //Branch 11
-                predictor = predictorField.getIntValueOrArraySum();
-            }
+        final TiffField predictorField = directory.findField(TiffTagConstants.TIFF_TAG_PREDICTOR);
+        if (predictorField != null) {
+            predictor = predictorField.getIntValueOrArraySum();
         }
 
         if (samplesPerPixel != bitsPerSample.length) {
-            CoverageTester.addBranchTaken(12); //Branch 12
-            throw new ImagingException("Tiff: samplesPerPixel (" + samplesPerPixel + ")!=fBitsPerSample.length (" + bitsPerSample.length + ")");
+            throw new ImagingException("Tiff: samplesPerPixel (" + samplesPerPixel
+                    + ")!=fBitsPerSample.length (" + bitsPerSample.length + ")");
         }
 
         final int photometricInterpretation = 0xffff & directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION);
-
-        boolean hasAlpha = false;
-        boolean isAlphaPremultiplied = false;
-        if (photometricInterpretation == TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_RGB && samplesPerPixel == 4) {
-            CoverageTester.addBranchTaken(13); //Branch 13
-            final TiffField extraSamplesField = directory.findField(TiffTagConstants.TIFF_TAG_EXTRA_SAMPLES);
-            if (extraSamplesField == null) {
-                CoverageTester.addBranchTaken(14); //Branch 14
-                // this state is not defined in the TIFF specification
-                // and so this code will interpret it as meaning that the
-                // proper handling would be ARGB.
-                hasAlpha = true;
-                isAlphaPremultiplied = false;
-            } else {
-                CoverageTester.addBranchTaken(15); //Branch 15
-                final int extraSamplesValue = extraSamplesField.getIntValue();
-                switch (extraSamplesValue) {
-                case TiffTagConstants.EXTRA_SAMPLE_UNASSOCIATED_ALPHA:
-                    CoverageTester.addBranchTaken(16); //Branch 16
-                    hasAlpha = true;
-                    isAlphaPremultiplied = false;
-                    break;
-                case TiffTagConstants.EXTRA_SAMPLE_ASSOCIATED_ALPHA:
-                    CoverageTester.addBranchTaken(17); //Branch 17
-                    hasAlpha = true;
-                    isAlphaPremultiplied = true;
-                    break;
-                case 0:
-                default:
-                    CoverageTester.addBranchTaken(18); //Branch 18
-                    hasAlpha = false;
-                    isAlphaPremultiplied = false;
-                    break;
-                }
-            }
-        }
+        
+        final boolean[] alphaProperties = determineAlphaPropertiesRefactor(photometricInterpretation, samplesPerPixel, directory);
+        final boolean hasAlpha = alphaProperties[0];
+        final boolean isAlphaPremultiplied = alphaProperties[1];
 
         PhotometricInterpreter photometricInterpreter = params == null ? null : params.getCustomPhotometricInterpreter();
         if (photometricInterpreter == null) {
-            CoverageTester.addBranchTaken(19); //Branch 19
-            photometricInterpreter = getPhotometricInterpreter(directory, photometricInterpretation, bitsPerPixel, bitsPerSample, predictor, samplesPerPixel,
-                    width, height);
+            photometricInterpreter = getPhotometricInterpreter(directory, photometricInterpretation, bitsPerPixel,
+                    bitsPerSample, predictor, samplesPerPixel, width, height);
         }
 
-        // Obtain the planar configuration
         final TiffField pcField = directory.findField(TiffTagConstants.TIFF_TAG_PLANAR_CONFIGURATION);
         final TiffPlanarConfiguration planarConfiguration = pcField == null ? TiffPlanarConfiguration.CHUNKY
                 : TiffPlanarConfiguration.lenientValueOf(pcField.getIntValue());
 
         if (planarConfiguration == TiffPlanarConfiguration.PLANAR) {
-            CoverageTester.addBranchTaken(20); //Branch 20
-            // currently, we support the non-interleaved (non-chunky)
-            // option only in the case of a 24-bit RBG photometric interpreter
-            // and for strips (not for tiles).
             if (photometricInterpretation != TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_RGB || bitsPerPixel != 24) {
-                CoverageTester.addBranchTaken(21); //Branch 21
                 throw new ImagingException("For planar configuration 2, only 24 bit RGB is currently supported");
             }
-            if (null == directory.findField(TiffTagConstants.TIFF_TAG_STRIP_OFFSETS)) {
-                CoverageTester.addBranchTaken(22); //Branch 22 
+            if (directory.findField(TiffTagConstants.TIFF_TAG_STRIP_OFFSETS) == null) {
                 throw new ImagingException("For planar configuration 2, only strips-organization is supported");
             }
         }
-
         final AbstractTiffImageData imageData = directory.getTiffImageData();
+        final ImageDataReader dataReader = imageData.getDataReader(directory, photometricInterpreter, bitsPerPixel,
+                bitsPerSample, predictor, samplesPerPixel, width, height, compression, planarConfiguration, byteOrder);
 
-        final ImageDataReader dataReader = imageData.getDataReader(directory, photometricInterpreter, bitsPerPixel, bitsPerSample, predictor, samplesPerPixel,
-                width, height, compression, planarConfiguration, byteOrder);
-
+        final Rectangle subImage = checkForSubImage(params);
         final ImageBuilder iBuilder = dataReader.readImageData(subImage, hasAlpha, isAlphaPremultiplied);
         return iBuilder.getBufferedImage();
+    }
+    // Refactored method to validate subimage parameters is now called upon in getBufferedImage, essentially the same as the original method  
+    private void validateSubImageParameters(final TiffImagingParameters params, final int width, final int height) 
+            throws ImagingException {
+        final Rectangle subImage = checkForSubImage(params);
+        if (subImage == null) {
+            return;
+        }
+
+        if (subImage.width <= 0) {
+            throw new ImagingException("Negative or zero subimage width.");
+        }
+        if (subImage.height <= 0) {
+            throw new ImagingException("Negative or zero subimage height.");
+        }
+        if (subImage.x < 0 || subImage.x >= width) {
+            throw new ImagingException("Subimage x is outside raster.");
+        }
+        if (subImage.x + subImage.width > width) {
+            throw new ImagingException("Subimage (x+width) is outside raster.");
+        }
+        if (subImage.y < 0 || subImage.y >= height) {
+            throw new ImagingException("Subimage y is outside raster.");
+        }
+        if (subImage.y + subImage.height > height) {
+            throw new ImagingException("Subimage (y+height) is outside raster.");
+        }
+    }
+    // Refactored method to determine alpha properties is now called upon in getBufferedImage, essentially the same as the original method
+    private boolean[] determineAlphaPropertiesRefactor(final int photometricInterpretation, final int samplesPerPixel,
+            final TiffDirectory directory) throws ImagingException {
+        boolean hasAlpha = false;
+        boolean isAlphaPremultiplied = false;
+        if (photometricInterpretation == TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_RGB && samplesPerPixel == 4) {
+            final TiffField extraSamplesField = directory.findField(TiffTagConstants.TIFF_TAG_EXTRA_SAMPLES);
+            if (extraSamplesField == null) {
+                hasAlpha = true;
+                isAlphaPremultiplied = false;
+            } else {
+                final int extraSamplesValue = extraSamplesField.getIntValue();
+                switch (extraSamplesValue) {
+                    case TiffTagConstants.EXTRA_SAMPLE_UNASSOCIATED_ALPHA:
+                        hasAlpha = true;
+                        isAlphaPremultiplied = false;
+                        break;
+                    case TiffTagConstants.EXTRA_SAMPLE_ASSOCIATED_ALPHA:
+                        hasAlpha = true;
+                        isAlphaPremultiplied = true;
+                        break;
+                    case 0:
+                    default:
+                        hasAlpha = false;
+                        isAlphaPremultiplied = false;
+                        break;
+                }
+            }
+        }
+        return new boolean[] {hasAlpha, isAlphaPremultiplied};
     }
 
     @Override
