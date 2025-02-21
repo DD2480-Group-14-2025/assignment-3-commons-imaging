@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="77eeb39b-639f-4942-bf07-b46c9abac25d" name="Changes" comment="docs: add documented requirements that are tested or untested by the given test suite, or appended in 3.5.2">
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/apache/commons/imaging/palette/MostPopulatedBoxesMedianCut.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/apache/commons/imaging/palette/MostPopulatedBoxesMedianCut.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="feature/15-performNextMedianCut-Coverage-Improvement" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/DD2480-Group-14-2025/assignment-3-commons-imaging.git",
+    "accountId": "45bea575-cfc3-4955-b425-fdbaf7694670"
+  }
+}]]></component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "git-widget-placeholder": "feature/performNextMedianCut-refactor"
+  }
+}]]></component>
+  <component name="TaskManager">
+    <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="docs: add documented requirements that are tested or untested by the given test suite, or appended in 3.5.2" />
+    <option name="LAST_COMMIT_MESSAGE" value="docs: add documented requirements that are tested or untested by the given test suite, or appended in 3.5.2" />
+  </component>
+</project>
