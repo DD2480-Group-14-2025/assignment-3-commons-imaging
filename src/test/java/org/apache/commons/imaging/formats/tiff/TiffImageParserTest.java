@@ -53,13 +53,13 @@
      }
  
      @Test
-     public void testGetBufferedImage_zeroWidthRectangle() throws Exception {
+     public void testZeroWidth() throws Exception {
 
          TiffImagingParameters mockedParams = mock(TiffImagingParameters.class);
          when(mockedParams.isSubImageSet()).thenReturn(true);
          when(mockedParams.getSubImageX()).thenReturn(0);
          when(mockedParams.getSubImageY()).thenReturn(0);
-         when(mockedParams.getSubImageWidth()).thenReturn(0);   // zero width
+         when(mockedParams.getSubImageWidth()).thenReturn(0);
          when(mockedParams.getSubImageHeight()).thenReturn(100);
  
          TiffDirectory directory = mock(TiffDirectory.class);
@@ -69,17 +69,17 @@
          when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION))
              .thenReturn((short)2);
  
-         // Act & Assert: triggers ImagingException from TiffImageParser         assertThrows(ImagingException.class,
+
+         assertThrows(ImagingException.class,
              () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, mockedParams));
      }
 
 
      @Test
-     public void testGetBufferedImage_samplesPerPixelMismatch() throws Exception {
+     public void testMisMatch() throws Exception {
 
          TiffImagingParameters params = new TiffImagingParameters();
  
-         // Mock TiffDirectory
          TiffDirectory directory = mock(TiffDirectory.class);
          when(directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION)).thenReturn(null);
          when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH)).thenReturn(100);
@@ -87,20 +87,17 @@
          when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION))
              .thenReturn((short)2);
  
-         // Mock SAMPLES_PER_PIXEL => 1
          TiffField samplesPerPixelField = mock(TiffField.class);
          when(samplesPerPixelField.getIntValue()).thenReturn(1);
          when(directory.findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL))
              .thenReturn(samplesPerPixelField);
  
-         // bitsPerSample array => length=2 -> mismatch
          TiffField bitsPerSampleField = mock(TiffField.class);
          when(bitsPerSampleField.getIntArrayValue()).thenReturn(new int[] {8, 8});
          when(bitsPerSampleField.getIntValueOrArraySum()).thenReturn(16);
          when(directory.findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE))
              .thenReturn(bitsPerSampleField);
  
-         // Act & Assert => triggers ImagingException
          assertThrows(ImagingException.class,
              () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, params));
      }
