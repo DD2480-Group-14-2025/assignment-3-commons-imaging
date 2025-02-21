@@ -66,13 +66,47 @@
          when(directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION)).thenReturn(null);
          when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH)).thenReturn(100);
          when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH)).thenReturn(100);
-         when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION))
-             .thenReturn((short)2);
+         when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION)).thenReturn((short) 2);
  
 
-         assertThrows(ImagingException.class,
-             () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, mockedParams));
+         assertThrows(ImagingException.class, () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, mockedParams));
      }
+
+     @Test
+    public void testZeroHeight() throws Exception {
+        TiffImagingParameters mockedParams = mock(TiffImagingParameters.class);
+        when(mockedParams.isSubImageSet()).thenReturn(true);
+        when(mockedParams.getSubImageX()).thenReturn(0);
+        when(mockedParams.getSubImageY()).thenReturn(0);
+        when(mockedParams.getSubImageWidth()).thenReturn(10);
+        when(mockedParams.getSubImageHeight()).thenReturn(0);
+
+        TiffDirectory directory = mock(TiffDirectory.class);
+        when(directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION)).thenReturn(null);
+        when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH)).thenReturn(100);
+        when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH)).thenReturn(100);
+        when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION)).thenReturn((short) 2);
+
+        assertThrows(ImagingException.class, () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, mockedParams));
+    }
+
+    @Test
+    public void testSubimageXWidth() throws Exception {
+        TiffImagingParameters mockedParams = mock(TiffImagingParameters.class);
+        when(mockedParams.isSubImageSet()).thenReturn(true);
+        when(mockedParams.getSubImageX()).thenReturn(-1);
+        when(mockedParams.getSubImageY()).thenReturn(0);
+        when(mockedParams.getSubImageWidth()).thenReturn(10);
+        when(mockedParams.getSubImageHeight()).thenReturn(10);
+
+        TiffDirectory directory = mock(TiffDirectory.class);
+        when(directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION)).thenReturn(null);
+        when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH)).thenReturn(100);
+        when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH)).thenReturn(100);
+        when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION)).thenReturn((short) 2);
+
+        assertThrows(ImagingException.class, () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, mockedParams));
+    }
 
 
      @Test
@@ -84,22 +118,18 @@
          when(directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION)).thenReturn(null);
          when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH)).thenReturn(100);
          when(directory.getSingleFieldValue(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH)).thenReturn(100);
-         when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION))
-             .thenReturn((short)2);
+         when(directory.getFieldValue(TiffTagConstants.TIFF_TAG_PHOTOMETRIC_INTERPRETATION)).thenReturn((short)2);
  
          TiffField samplesPerPixelField = mock(TiffField.class);
          when(samplesPerPixelField.getIntValue()).thenReturn(1);
-         when(directory.findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL))
-             .thenReturn(samplesPerPixelField);
+         when(directory.findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL)).thenReturn(samplesPerPixelField);
  
          TiffField bitsPerSampleField = mock(TiffField.class);
          when(bitsPerSampleField.getIntArrayValue()).thenReturn(new int[] {8, 8});
          when(bitsPerSampleField.getIntValueOrArraySum()).thenReturn(16);
-         when(directory.findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE))
-             .thenReturn(bitsPerSampleField);
+         when(directory.findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE)).thenReturn(bitsPerSampleField);
  
-         assertThrows(ImagingException.class,
-             () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, params));
+         assertThrows(ImagingException.class, () -> new TiffImageParser().getBufferedImage(directory, ByteOrder.BIG_ENDIAN, params));
      }
  
  }
