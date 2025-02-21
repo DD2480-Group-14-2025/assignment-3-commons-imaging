@@ -22,8 +22,6 @@ import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import org.apache.CoverageTester;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class ImageDumpTest {

@@ -54,7 +54,7 @@ import org.apache.commons.imaging.formats.tiff.photometricinterpreters.Photometr
 import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterRgb;
 import org.apache.commons.imaging.formats.tiff.photometricinterpreters.PhotometricInterpreterYCbCr;
 import org.apache.commons.imaging.formats.tiff.write.TiffImageWriterLossy;
-import org.apache.CoverageTester;
+
 /**
  * Implements methods for reading and writing TIFF files. Instances of this class are invoked from the general Imaging class. Applications that require the use
  * of TIFF-specific features may instantiate and access this class directly.
@@ -390,29 +390,14 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
 
     @Override
     public ImageInfo getImageInfo(final ByteSource byteSource, final TiffImagingParameters params) throws ImagingException, IOException {
-        CoverageTester.increaseTotalRuns();
         final FormatCompliance formatCompliance = FormatCompliance.getDefault();
-        final TiffContents contents;
-        if(params == null) {
-            CoverageTester.addBranchTaken(0);
-            contents = new TiffReader(false).readDirectories(byteSource, false, formatCompliance);
-        }
-        else{
-            CoverageTester.addBranchTaken(1);
-            contents = new TiffReader(params.isStrict()).readDirectories(byteSource, false, formatCompliance);
-        }
-
+        final TiffContents contents = new TiffReader(params != null && params.isStrict()).readDirectories(byteSource, false, formatCompliance);
         final TiffDirectory directory = contents.directories.get(0);
 
         final TiffField widthField = directory.findField(TiffTagConstants.TIFF_TAG_IMAGE_WIDTH, true);
         final TiffField heightField = directory.findField(TiffTagConstants.TIFF_TAG_IMAGE_LENGTH, true);
 
-        if (widthField == null) {
-            CoverageTester.addBranchTaken(2);
-            throw new ImagingException("TIFF image missing size info.");
-        }
-        else if(heightField == null){
-            CoverageTester.addBranchTaken(3);
+        if (widthField == null || heightField == null) {
             throw new ImagingException("TIFF image missing size info.");
         }
 
@@ -422,25 +407,20 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
         final TiffField resolutionUnitField = directory.findField(TiffTagConstants.TIFF_TAG_RESOLUTION_UNIT);
         int resolutionUnit = 2; // Inch
         if (resolutionUnitField != null && resolutionUnitField.getValue() != null) {
-                resolutionUnit = resolutionUnitField.getIntValue();
-                CoverageTester.addBranchTaken(4);
+            resolutionUnit = resolutionUnitField.getIntValue();
         }
 
         double unitsPerInch = -1;
         switch (resolutionUnit) {
         case 1:
-            CoverageTester.addBranchTaken(5);
             break;
         case 2: // Inch
-            CoverageTester.addBranchTaken(6);
             unitsPerInch = 1.0;
             break;
         case 3: // Centimeter
-            CoverageTester.addBranchTaken(7);
             unitsPerInch = 2.54;
             break;
         default:
-            CoverageTester.addBranchTaken(8);
             break;
 
         }
@@ -455,25 +435,21 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
             final TiffField yResolutionField = directory.findField(TiffTagConstants.TIFF_TAG_YRESOLUTION);
 
             if (xResolutionField != null && xResolutionField.getValue() != null) {
-                CoverageTester.addBranchTaken(9);
                 final double xResolutionPixelsPerUnit = xResolutionField.getDoubleValue();
                 physicalWidthDpi = (int) Math.round(xResolutionPixelsPerUnit * unitsPerInch);
                 physicalWidthInch = (float) (width / (xResolutionPixelsPerUnit * unitsPerInch));
             }
             if (yResolutionField != null && yResolutionField.getValue() != null) {
-                CoverageTester.addBranchTaken(10);
                 final double yResolutionPixelsPerUnit = yResolutionField.getDoubleValue();
                 physicalHeightDpi = (int) Math.round(yResolutionPixelsPerUnit * unitsPerInch);
                 physicalHeightInch = (float) (height / (yResolutionPixelsPerUnit * unitsPerInch));
             }
-
         }
 
         final TiffField bitsPerSampleField = directory.findField(TiffTagConstants.TIFF_TAG_BITS_PER_SAMPLE);
 
         int bitsPerSample = 1;
         if (bitsPerSampleField != null && bitsPerSampleField.getValue() != null) {
-            CoverageTester.addBranchTaken(11);
             bitsPerSample = bitsPerSampleField.getIntValueOrArraySum();
         }
 
@@ -482,7 +458,6 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
 
         final List<String> comments = Allocator.arrayList(directory.size());
         for (final TiffField field : directory) {
-            CoverageTester.addBranchTaken(12);
             final String comment = field.toString();
             comments.add(comment);
         }
@@ -501,7 +476,6 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
         boolean usesPalette = false;
         final TiffField colorMapField = directory.findField(TiffTagConstants.TIFF_TAG_COLOR_MAP);
         if (colorMapField != null) {
-            CoverageTester.addBranchTaken(13);
             usesPalette = true;
         }
 
@@ -509,7 +483,6 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
         final TiffField extraSamplesField = directory.findField(TiffTagConstants.TIFF_TAG_EXTRA_SAMPLES);
         final int extraSamples;
         if (extraSamplesField == null) {
-            CoverageTester.addBranchTaken(14);
             extraSamples = 0; // no extra samples value
         } else {
             extraSamples = extraSamplesField.getIntValue();
@@ -517,7 +490,6 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
         final TiffField samplesPerPixelField = directory.findField(TiffTagConstants.TIFF_TAG_SAMPLES_PER_PIXEL);
         final int samplesPerPixel;
         if (samplesPerPixelField == null) {
-            CoverageTester.addBranchTaken(15);
             samplesPerPixel = 1;
         } else {
             samplesPerPixel = samplesPerPixelField.getIntValue();
@@ -526,16 +498,13 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
         final ImageInfo.ColorType colorType;
         switch (photoInterp) {
         case TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_BLACK_IS_ZERO:
-            CoverageTester.addBranchTaken(16);
         case TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_WHITE_IS_ZERO:
             // the ImageInfo.ColorType enumeration does not distinguish
             // between monotone white is zero or black is zero
-            CoverageTester.addBranchTaken(17);
             colorType = ImageInfo.ColorType.BW;
             break;
         case TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_RGB:
             colorType = ImageInfo.ColorType.RGB;
-            CoverageTester.addBranchTaken(18);
             // even if 4 samples per pixel are included, TIFF
             // doesn't specify transparent unless the optional "extra samples"
             // field is supplied with a non-zero value
@@ -543,25 +512,20 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
             break;
         case TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_RGB_PALETTE:
             colorType = ImageInfo.ColorType.RGB;
-            CoverageTester.addBranchTaken(19);
             usesPalette = true;
             break;
         case TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_CMYK:
             colorType = ImageInfo.ColorType.CMYK;
-            CoverageTester.addBranchTaken(20);
             break;
         case TiffTagConstants.PHOTOMETRIC_INTERPRETATION_VALUE_YCB_CR:
             colorType = ImageInfo.ColorType.YCbCr;
-            CoverageTester.addBranchTaken(21);
             break;
         default:
-            CoverageTester.addBranchTaken(22);
             colorType = ImageInfo.ColorType.UNKNOWN;
         }
 
         final short compressionFieldValue;
         if (directory.findField(TiffTagConstants.TIFF_TAG_COMPRESSION) != null) {
-            CoverageTester.addBranchTaken(23);
             compressionFieldValue = directory.getFieldValue(TiffTagConstants.TIFF_TAG_COMPRESSION);
         } else {
             compressionFieldValue = TiffConstants.COMPRESSION_UNCOMPRESSED_1;
@@ -571,51 +535,37 @@ public class TiffImageParser extends AbstractImageParser<TiffImagingParameters> 
 
         switch (compression) {
         case TiffConstants.COMPRESSION_UNCOMPRESSED_1:
-            CoverageTester.addBranchTaken(24);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.NONE;
             break;
         case TiffConstants.COMPRESSION_CCITT_1D:
-            CoverageTester.addBranchTaken(25);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.CCITT_1D;
             break;
         case TiffConstants.COMPRESSION_CCITT_GROUP_3:
-            CoverageTester.addBranchTaken(26);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.CCITT_GROUP_3;
             break;
         case TiffConstants.COMPRESSION_CCITT_GROUP_4:
-            CoverageTester.addBranchTaken(27);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.CCITT_GROUP_4;
             break;
         case TiffConstants.COMPRESSION_LZW:
-            CoverageTester.addBranchTaken(28);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.LZW;
             break;
         case TiffConstants.COMPRESSION_JPEG_OBSOLETE:
-            CoverageTester.addBranchTaken(29);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.JPEG_TIFF_OBSOLETE;
             break;
         case TiffConstants.COMPRESSION_JPEG:
-            CoverageTester.addBranchTaken(30);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.JPEG;
             break;
         case TiffConstants.COMPRESSION_UNCOMPRESSED_2:
-            CoverageTester.addBranchTaken(31);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.NONE;
             break;
         case TiffConstants.COMPRESSION_PACKBITS:
-            System.out.println("PACKBITS");
-            CoverageTester.addBranchTaken(32);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.PACKBITS;
             break;
         case TiffConstants.COMPRESSION_DEFLATE_PKZIP:
-            System.out.println("COMPRESSION_DEFLATE_PKZIP");
-            CoverageTester.addBranchTaken(33);
         case TiffConstants.COMPRESSION_DEFLATE_ADOBE:
-            CoverageTester.addBranchTaken(34);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.DEFLATE;
             break;
         default:
-            CoverageTester.addBranchTaken(35);
             compressionAlgorithm = ImageInfo.CompressionAlgorithm.UNKNOWN;
             break;
         }
